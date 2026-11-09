@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -672,7 +672,7 @@
             cursor: pointer;
         }
 
-        /* Quick Copy Box */
+        /* Quick Command Box */
         .quick-copy-container {
             display: flex;
             justify-content: center;
@@ -834,7 +834,7 @@
             color: var(--text-dim);
         }
 
-        /* Color Splash & Presets specific CSS */
+        /* Color Splash */
         .color-splash-container {
             display: flex;
             flex-direction: column;
@@ -1145,7 +1145,7 @@
                 <div class="brand-title">DISCORD ID PRO</div>
                 <div class="brand-sub">
                     <span class="status-dot" id="serverStatusDot"></span>
-                    <span id="serverStatusText">Verifica connessione...</span>
+                    <span id="serverStatusText">Checking connection...</span>
                 </div>
             </div>
         </div>
@@ -1156,7 +1156,7 @@
                 <svg width="18" height="18" viewBox="0 0 127.14 96.36" fill="currentColor">
                     <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
                 </svg>
-                <span>Accedi con Discord</span>
+                <span>Login with Discord</span>
             </button>
         </div>
     </header>
@@ -1178,7 +1178,7 @@
             Settings
             <svg id="nav-lock-settings" class="nav-lock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         </button>
-        <button class="nav-item" id="themeToggle" onclick="toggleTheme()" title="Cambia Tema" style="margin-left: auto;">☀️</button>
+        <button class="nav-item" id="themeToggle" onclick="toggleTheme()" title="Toggle Theme" style="margin-left: auto;">☀️</button>
     </nav>
 
     <!-- MAIN CONTAINER -->
@@ -1187,60 +1187,60 @@
         <!-- PAGE: STANDARD -->
         <div id="page-standard" class="page active">
             <h1>Standard IDs</h1>
-            <p class="subtitle">Pulisci, ordina e filtra le tue liste di Discord ID con facilità.</p>
+            <p class="subtitle">Clean, sort, and filter your Discord ID lists.</p>
 
             <div class="quick-copy-container">
                 <div class="quick-copy-box" onclick="copiaComandoRole()">
                     <span class="label">Quick Command</span>
                     <code>*role all -&lt;@&amp;951456227253170199&gt;</code>
-                    <span class="label" style="margin-left: 6px; font-weight: 600;">Copia</span>
+                    <span class="label" style="margin-left: 6px; font-weight: 600;">Copy</span>
                 </div>
             </div>
 
             <div class="drop-area" id="dropArea">
-                Trascina qui un file .txt o .csv, oppure clicca per selezionarlo
+                Drag and drop a .txt or .csv file here, or click to browse
             </div>
 
             <div class="field-group">
                 <label>Input IDs</label>
                 <div class="textarea-wrapper">
-                    <textarea id="idInput" placeholder="Incolla Discord ID (uno per riga o separati da virgola)..." style="height: 180px;"></textarea>
-                    <button class="btn-clear" onclick="clearTextarea('idInput')" title="Cancella">×</button>
+                    <textarea id="idInput" placeholder="Paste Discord IDs (one per line or comma-separated)..." style="height: 180px;"></textarea>
+                    <button class="btn-clear" onclick="clearTextarea('idInput')" title="Clear">×</button>
                 </div>
             </div>
 
             <div class="field-group">
-                <label>IDs da Escludere</label>
+                <label>IDs to Exclude</label>
                 <div class="textarea-wrapper">
-                    <textarea id="excludeInput" placeholder="Questi ID verranno rimossi dal risultato finale..." style="height: 80px;"></textarea>
-                    <button class="btn-clear" onclick="clearTextarea('excludeInput')" title="Cancella">×</button>
+                    <textarea id="excludeInput" placeholder="These IDs will be removed from the final result..." style="height: 80px;"></textarea>
+                    <button class="btn-clear" onclick="clearTextarea('excludeInput')" title="Clear">×</button>
                 </div>
             </div>
 
             <div class="stats-grid">
                 <div class="stat-card">
                     <span id="count" class="stat-value">0</span>
-                    <span class="stat-label">Validi</span>
+                    <span class="stat-label">Valid</span>
                 </div>
                 <div class="stat-card">
                     <span id="duplicates" class="stat-value">0</span>
-                    <span class="stat-label">Duplicati</span>
+                    <span class="stat-label">Duplicates</span>
                 </div>
             </div>
 
             <div class="options-row">
                 <label class="option-item" style="flex: 1; min-width: 140px;">
-                    <input type="text" id="customPrefix" placeholder="Prefisso (es. /ban )"
+                    <input type="text" id="customPrefix" placeholder="Prefix (e.g. /ban )"
                         style="width:100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: rgba(0,0,0,0.25); color: var(--text-main); font-family: var(--font-main);">
                 </label>
                 <label class="option-item" style="flex: 1; min-width: 140px;">
-                    <input type="text" id="customSuffix" placeholder="Suffisso"
+                    <input type="text" id="customSuffix" placeholder="Suffix"
                         style="width:100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: rgba(0,0,0,0.25); color: var(--text-main); font-family: var(--font-main);">
                 </label>
             </div>
             <div class="options-row">
-                <label class="option-item"><input type="checkbox" id="sortDesc"> Ordine Decrescente</label>
-                <label class="option-item"><input type="checkbox" id="newlineOutput"> Un ID per riga</label>
+                <label class="option-item"><input type="checkbox" id="sortDesc"> Sort Descending</label>
+                <label class="option-item"><input type="checkbox" id="newlineOutput"> One ID per line</label>
                 <label class="option-item"><input type="checkbox" id="top5Output" onchange="handleExclusiveCheckboxes(this)"> Top5</label>
                 <label class="option-item"><input type="checkbox" id="ladderOutput" onchange="handleExclusiveCheckboxes(this)"> Ladder</label>
                 <label class="option-item"><input type="checkbox" id="victoryLadderOutput" onchange="handleExclusiveCheckboxes(this)"> Victory Ladder</label>
@@ -1249,15 +1249,15 @@
             </div>
 
             <div class="btn-group">
-                <button class="btn btn-primary" onclick="riordinaID()">Elabora Lista</button>
-                <button class="btn btn-secondary" onclick="copiaRisultato('output')">Copia Risultato</button>
-                <button class="btn btn-secondary" onclick="scaricaTXT()">Scarica TXT</button>
-                <button class="btn btn-danger" onclick="resettaStandard()">Cancella Tutto</button>
+                <button class="btn btn-primary" onclick="riordinaID()">Process List</button>
+                <button class="btn btn-secondary" onclick="copiaRisultato('output')">Copy Result</button>
+                <button class="btn btn-secondary" onclick="scaricaTXT()">Download TXT</button>
+                <button class="btn btn-danger" onclick="resettaStandard()">Clear All</button>
             </div>
 
             <div class="output-container" id="outputSection" style="display: none;">
                 <div class="output-header">
-                    <span style="font-weight: 600; color: var(--text-dim); font-size: 0.88rem;">Risultato Elaborato</span>
+                    <span style="font-weight: 600; color: var(--text-dim); font-size: 0.88rem;">Processed Result</span>
                 </div>
                 <div id="output" class="output-box"></div>
             </div>
@@ -1268,69 +1268,69 @@
             <div class="cloud-banner">
                 <div class="cloud-banner-info">
                     <div>
-                        <strong>Archivio Cloud Condiviso</strong> — Gli ID aggiunti qui vengono sincronizzati automaticamente nel database server in tempo reale.
+                        <strong>Shared Cloud Archive</strong> — IDs added here are automatically synchronized with the server database in real-time.
                     </div>
                 </div>
                 <button class="btn btn-accent" style="min-width: 170px; padding: 7px 16px; font-size: 0.84rem;" onclick="openArchiveViewerModal()">
-                    Consulta Archivio (<span id="btnArchiveTotalCount">0</span>)
+                    View Archive (<span id="btnArchiveTotalCount">0</span>)
                 </button>
             </div>
 
             <h1>Level 30 Filter</h1>
-            <p class="subtitle">Filtra ed esclude automaticamente gli ID già presenti nell'archivio condiviso.</p>
+            <p class="subtitle">Automatically filter out IDs already saved in the shared archive.</p>
 
             <div class="quick-copy-container">
                 <div class="quick-copy-box" onclick="copiaComandoRole()">
                     <span class="label">Quick Command</span>
                     <code>*role all -&lt;@&amp;951456227253170199&gt;</code>
-                    <span class="label" style="margin-left: 6px; font-weight: 600;">Copia</span>
+                    <span class="label" style="margin-left: 6px; font-weight: 600;">Copy</span>
                 </div>
             </div>
 
             <div class="field-group">
-                <label>Incolla Nuovi ID</label>
+                <label>Paste New IDs</label>
                 <div class="textarea-wrapper">
-                    <textarea id="idInput30" placeholder="Incolla nuovi ID da filtrare e archiviare..." style="height: 180px;"></textarea>
-                    <button class="btn-clear" onclick="clearTextarea('idInput30')" title="Cancella">×</button>
+                    <textarea id="idInput30" placeholder="Paste new IDs to filter and archive..." style="height: 180px;"></textarea>
+                    <button class="btn-clear" onclick="clearTextarea('idInput30')" title="Clear">×</button>
                 </div>
             </div>
 
             <div class="stats-grid">
                 <div class="stat-card">
                     <span id="count30" class="stat-value">0</span>
-                    <span class="stat-label">Nuovi Rilevati</span>
+                    <span class="stat-label">New Detected</span>
                 </div>
                 <div class="stat-card">
                     <span id="historyRemoved30" class="stat-value" style="color: var(--warning);">0</span>
-                    <span class="stat-label">Già in Archivio</span>
+                    <span class="stat-label">Already in Archive</span>
                 </div>
                 <div class="stat-card">
                     <span id="historyTotal30" class="stat-value" style="color: var(--accent);">0</span>
-                    <span class="stat-label">Totale Archivio Cloud</span>
+                    <span class="stat-label">Total Cloud Archive</span>
                 </div>
             </div>
 
             <div class="options-row">
-                <label class="option-item"><input type="checkbox" id="sortDesc30"> Ordine Decrescente</label>
-                <label class="option-item"><input type="checkbox" id="newlineOutput30" checked> Un ID per riga</label>
+                <label class="option-item"><input type="checkbox" id="sortDesc30"> Sort Descending</label>
+                <label class="option-item"><input type="checkbox" id="newlineOutput30" checked> One ID per line</label>
             </div>
 
             <div class="btn-group">
-                <button class="btn btn-primary" onclick="elaboraLevel30()">Filtra & Archivia</button>
-                <button class="btn btn-secondary" onclick="copiaRisultato('output30')">Copia Nuovi</button>
-                <button class="btn btn-secondary" onclick="resetta30()">Pulisci Box</button>
+                <button class="btn btn-primary" onclick="elaboraLevel30()">Filter & Archive</button>
+                <button class="btn btn-secondary" onclick="copiaRisultato('output30')">Copy New</button>
+                <button class="btn btn-secondary" onclick="resetta30()">Clear Box</button>
             </div>
 
             <div class="output-container" id="outputSection30" style="display: none;">
                 <div class="output-header">
-                    <span style="font-weight: 600; color: var(--success); font-size: 0.88rem;">Nuovi ID Filtrati & Archiviati</span>
+                    <span style="font-weight: 600; color: var(--success); font-size: 0.88rem;">New Filtered IDs (Archived)</span>
                 </div>
                 <div id="output30" class="output-box" style="border-color: rgba(46, 204, 113, 0.35);"></div>
             </div>
 
             <div class="output-container" id="excludedSection30" style="display: none; margin-top: 16px;">
                 <div class="output-header">
-                    <span style="font-weight: 600; color: var(--warning); font-size: 0.88rem;">ID Già Presenti nell'Archivio (Esclusi)</span>
+                    <span style="font-weight: 600; color: var(--warning); font-size: 0.88rem;">IDs Already in Archive (Excluded)</span>
                 </div>
                 <div id="excludedOutput30" class="output-box" style="border-color: rgba(255, 165, 2, 0.35);"></div>
             </div>
@@ -1339,39 +1339,39 @@
         <!-- PAGE: COLOR SPLASH -->
         <div id="page-colorsplash" class="page">
             <h1>Color Splash</h1>
-            <p class="subtitle">Sostituisci colori specifici nelle tue immagini.</p>
+            <p class="subtitle">Select and replace specific colors in your photos.</p>
 
             <div class="color-splash-container">
                 <div class="drop-area" id="csDropArea">
-                    Trascina un'immagine qui, o clicca per caricarla
+                    Drag and drop an image here, or click to upload
                     <input type="file" id="csFileInput" accept="image/*" hidden>
                 </div>
 
                 <div class="canvas-wrapper">
-                    <div id="emptyCanvasMsg" style="color: var(--text-dim); font-size: 0.9rem;">Nessuna immagine caricata</div>
+                    <div id="emptyCanvasMsg" style="color: var(--text-dim); font-size: 0.9rem;">No image uploaded</div>
                     <canvas id="csCanvas"></canvas>
                 </div>
 
                 <div class="color-controls">
                     <div class="color-picker-group">
-                        <label>Colore Target (Clicca sull'immagine)</label>
+                        <label>Target Color (Click on image)</label>
                         <div id="csSourcePreview" class="color-preview" style="background-color: #000000;">#000000</div>
                     </div>
                     <div class="color-picker-group">
-                        <label>Colore Sostitutivo</label>
+                        <label>Replacement Color</label>
                         <input type="color" id="csReplaceColor" value="#5865F2" style="width: 100%; height: 36px; border: 1px solid var(--card-border); border-radius: 6px; cursor: pointer;">
                     </div>
                     <div class="slider-group">
-                        <label>Tolleranza: <span id="csToleranceValue">50</span></label>
+                        <label>Tolerance: <span id="csToleranceValue">50</span></label>
                         <input type="range" id="csTolerance" min="0" max="255" value="50" style="width: 100%; accent-color: var(--primary);">
                     </div>
                 </div>
 
                 <div class="btn-group">
-                    <button class="btn btn-primary" onclick="applyColorSplash()">Applica Modifiche</button>
-                    <button class="btn btn-secondary" onclick="resetColorSplashImage()">Ripristina</button>
-                    <button class="btn btn-secondary" onclick="downloadColorSplash()">Scarica</button>
-                    <button class="btn btn-danger" onclick="clearColorSplash()">Rimuovi</button>
+                    <button class="btn btn-primary" onclick="applyColorSplash()">Apply Changes</button>
+                    <button class="btn btn-secondary" onclick="resetColorSplashImage()">Reset</button>
+                    <button class="btn btn-secondary" onclick="downloadColorSplash()">Download</button>
+                    <button class="btn btn-danger" onclick="clearColorSplash()">Clear</button>
                 </div>
             </div>
         </div>
@@ -1379,7 +1379,7 @@
         <!-- PAGE: PRESETS -->
         <div id="page-presets" class="page">
             <h1>Game Presets</h1>
-            <p class="subtitle">Invia e copia rapidamente i messaggi prestabiliti per i match quotidiani.</p>
+            <p class="subtitle">Quickly copy and send preset messages for daily matches.</p>
 
             <!-- Progress Tracker -->
             <div style="display: flex; justify-content: space-between; margin-bottom: 26px; position: relative;">
@@ -1396,9 +1396,9 @@
             </div>
 
             <div class="field-group">
-                <label>Seleziona Match / Preset</label>
+                <label>Select Match / Preset</label>
                 <select id="presetSelect" style="width: 100%; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--card-border); background: rgba(0,0,0,0.25); color: var(--text-main); font-family: var(--font-main); font-size: 0.9rem; outline: none;">
-                    <option value="0">Seleziona un Preset o Inizia dal Game 1...</option>
+                    <option value="0">Select a Preset or Start with Game 1...</option>
                     <option value="1">Game 1 - Yunite Client Reminder</option>
                     <option value="2">Game 2 - Scrims Champion Event</option>
                     <option value="3">Game 3 - Patreon Division 3 Access</option>
@@ -1409,19 +1409,19 @@
             </div>
 
             <div class="btn-group">
-                <button class="btn btn-primary" id="btnNextPreset" onclick="getNextPreset()">Inizia Hosting (Game 1)</button>
-                <button class="btn btn-secondary" onclick="resetPresets()">Azzera Sequenza</button>
+                <button class="btn btn-primary" id="btnNextPreset" onclick="getNextPreset()">Start Hosting (Game 1)</button>
+                <button class="btn btn-secondary" onclick="resetPresets()">Reset Sequence</button>
             </div>
 
             <div class="output-container" id="presetOutputSection" style="display: none;">
                 <div class="output-header">
-                    <span style="font-weight: 600; color: var(--text-dim); font-size: 0.88rem;">Testo Preset Copiato</span>
+                    <span style="font-weight: 600; color: var(--text-dim); font-size: 0.88rem;">Copied Preset Content</span>
                 </div>
                 <div id="presetOutput" class="output-box"></div>
             </div>
 
             <div style="margin-top: 36px; border-top: 1px solid var(--card-border); padding-top: 22px;">
-                <h3 style="font-size: 1rem; margin-bottom: 14px; color: var(--text-dim);">Messaggi Rapidi Generali</h3>
+                <h3 style="font-size: 1rem; margin-bottom: 14px; color: var(--text-dim);">General Quick Messages</h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
                     <div class="quick-copy-box" onclick="copyGeneralPreset(0)" style="width: 100%; justify-content: center;">
                         <span class="label">First Match Alert</span>
@@ -1450,38 +1450,38 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
                 <div>
                     <h1>Audit Logs</h1>
-                    <p class="subtitle" style="margin-bottom: 0;">Cronologia centralizzata delle elaborazioni e aggiunte di ID.</p>
+                    <p class="subtitle" style="margin-bottom: 0;">Centralized history of list processing and archive additions.</p>
                 </div>
                 <button class="btn btn-secondary" style="flex: none; min-width: 110px; padding: 7px 14px; font-size: 0.85rem;" onclick="loadSharedLogs()">
-                    Aggiorna
+                    Refresh
                 </button>
             </div>
 
             <div id="logsContainer" class="logs-list">
                 <div style="text-align: center; color: var(--text-dim); padding: 26px;">
-                    Caricamento log dal server...
+                    Loading logs from server...
                 </div>
             </div>
         </div>
 
         <!-- PAGE: SETTINGS -->
         <div id="page-settings" class="page">
-            <h1>Impostazioni & Staff</h1>
-            <p class="subtitle">Gestione dei permessi di accesso, backup e archivio centrale.</p>
+            <h1>Settings & Staff</h1>
+            <p class="subtitle">Manage access permissions, backups, and central archive.</p>
 
             <!-- Staff Permissions -->
             <div style="background: rgba(88, 101, 242, 0.04); border: 1px solid rgba(88, 101, 242, 0.16); padding: 18px; border-radius: 14px; margin-bottom: 24px;">
                 <h3 style="font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">
-                    Staff Autorizzato
+                    Authorized Staff
                 </h3>
                 <p style="font-size: 0.84rem; color: var(--text-dim); margin-bottom: 12px;">
-                    Solo il Creatore e gli Admin elencati hanno accesso a Level 30, Logs e Settings:
+                    Only the Creator and listed Admins have access to Level 30, Logs, and Settings:
                 </p>
                 <div class="staff-grid">
                     <div class="staff-card" style="border-color: rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.03);">
                         <div class="staff-avatar-initial" style="background: rgba(255, 215, 0, 0.15); color: #ffd700;">👑</div>
                         <div class="staff-info">
-                            <span class="staff-name" style="color: #ffd700;">Creatore</span>
+                            <span class="staff-name" style="color: #ffd700;">Creator</span>
                             <span class="staff-id">459683716634247172</span>
                         </div>
                     </div>
@@ -1512,26 +1512,26 @@
             <!-- Central Cloud Backup -->
             <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); padding: 18px; border-radius: 14px; margin-bottom: 24px;">
                 <h3 style="font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">
-                    Backup & Ripristino
+                    Backup & Restore
                 </h3>
                 <p style="font-size: 0.84rem; color: var(--text-dim); margin-bottom: 14px;">
-                    Scarica una copia completa del database o importa nuovi ID nell'archivio.
+                    Download a full copy of the database or import new IDs into the archive.
                 </p>
                 <div class="btn-group">
-                    <button class="btn btn-secondary" onclick="exportData()">Esporta Backup (.json)</button>
-                    <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">Importa Database</button>
+                    <button class="btn btn-secondary" onclick="exportData()">Export Backup (.json)</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">Import Database</button>
                     <input type="file" id="importFile" hidden accept=".json,.txt" onchange="importData(event)">
                 </div>
             </div>
 
             <!-- Danger Zone -->
             <div style="padding: 18px; border-radius: 14px; background: rgba(255, 71, 87, 0.04); border: 1px solid rgba(255, 71, 87, 0.18);">
-                <label style="color: var(--danger); font-size: 0.92rem;">Zona Pericolosa</label>
+                <label style="color: var(--danger); font-size: 0.92rem;">Danger Zone</label>
                 <p style="font-size: 0.82rem; color: var(--text-dim); margin-bottom: 14px;">
-                    Questa azione svuoterà l'archivio Level 30 memorizzato sul server per tutti gli utenti.
+                    This action will permanently delete all Level 30 archive IDs on the server for all users.
                 </p>
                 <button class="btn btn-danger" style="flex: none; min-width: 200px;" onclick="pulisciArchivioGlobale()">
-                    Svuota Archivio Globale
+                    Clear Global Archive
                 </button>
             </div>
         </div>
@@ -1548,23 +1548,23 @@
             </div>
             <div class="modal-body" style="padding-top: 6px;">
                 <h3 style="font-size: 1.25rem; color: var(--text-main); margin-bottom: 10px; font-family: var(--font-heading);">
-                    Accesso Riservato allo Staff
+                    Staff Access Only
                 </h3>
                 <p style="font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 18px;">
-                    Questa sezione è protetta ed accessibile solo agli account Discord autorizzati:
+                    This section is protected and accessible only to authorized Discord accounts:
                 </p>
                 <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); border-radius: 10px; padding: 12px; margin-bottom: 20px; text-align: left; font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent); line-height: 1.7;">
-                    <div>Creatore: 459683716634247172</div>
+                    <div>Creator: 459683716634247172</div>
                     <div>Admin 1: 817378206520836156</div>
                     <div>Admin 2: 422345185415135232</div>
                     <div>Admin 3: 510792663210131456</div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     <button class="btn btn-primary" onclick="loginDiscord()" style="width: 100%;">
-                        Accedi con Discord
+                        Login with Discord
                     </button>
                     <button class="btn btn-secondary" onclick="closeAccessDeniedModal()" style="width: 100%;">
-                        Chiudi
+                        Close
                     </button>
                 </div>
             </div>
@@ -1575,16 +1575,16 @@
     <div class="modal-overlay" id="archiveViewerModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Archivio Level 30</h3>
+                <h3>Level 30 Archive</h3>
                 <button class="modal-close-btn" onclick="closeArchiveViewerModal()">×</button>
             </div>
             <div class="modal-body">
-                <input type="text" class="archive-search-box" id="archiveSearchInput" placeholder="Cerca ID Discord nell'archivio..." oninput="filterArchiveList()">
+                <input type="text" class="archive-search-box" id="archiveSearchInput" placeholder="Search Discord ID in archive..." oninput="filterArchiveList()">
                 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.82rem; color: var(--text-dim);">
-                    <span id="archiveFilteredCount">Visualizzati 0 ID</span>
+                    <span id="archiveFilteredCount">Showing 0 IDs</span>
                     <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 0.76rem; min-width: auto;" onclick="copiaTuttoArchivio()">
-                        Copia Tutti gli ID
+                        Copy All IDs
                     </button>
                 </div>
 
@@ -1593,7 +1593,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeArchiveViewerModal()">Chiudi</button>
+                <button class="btn btn-secondary" onclick="closeArchiveViewerModal()">Close</button>
             </div>
         </div>
     </div>
@@ -1636,7 +1636,7 @@
                     currentUser = null;
                 }
             } catch (err) {
-                console.warn("[Cloud] Server offline, fallback locale:", err);
+                console.warn("[Cloud] Server offline, local fallback:", err);
                 isServerConnected = false;
                 updateServerStatus(false);
                 currentUser = null;
@@ -1653,11 +1653,11 @@
             if (online) {
                 dot.style.backgroundColor = 'var(--success)';
                 dot.style.boxShadow = '0 0 6px var(--success)';
-                text.textContent = 'Cloud Sync Connesso';
+                text.textContent = 'Cloud Sync Connected';
             } else {
                 dot.style.backgroundColor = 'var(--warning)';
                 dot.style.boxShadow = '0 0 6px var(--warning)';
-                text.textContent = 'Modalità Locale (Offline)';
+                text.textContent = 'Offline Mode';
             }
         }
 
@@ -1669,7 +1669,7 @@
                 const isCreator = currentUser.id === CREATOR_ID;
                 const isAdmin = ADMIN_IDS.includes(currentUser.id);
                 const roleClass = isCreator ? 'role-creator' : (isAdmin ? 'role-admin' : 'role-guest');
-                const roleLabel = isCreator ? 'Creatore 👑' : (isAdmin ? 'Admin' : 'Ospite');
+                const roleLabel = isCreator ? 'Creator 👑' : (isAdmin ? 'Admin' : 'Guest');
 
                 container.innerHTML = `
                     <div class="user-card">
@@ -1682,7 +1682,7 @@
                             <span class="role-badge ${roleClass}">${roleLabel}</span>
                         </div>
                     </div>
-                    <button class="btn-auth-action" onclick="logoutDiscord()" title="Disconnetti">Esci</button>
+                    <button class="btn-auth-action" onclick="logoutDiscord()" title="Logout">Logout</button>
                 `;
             } else {
                 container.innerHTML = `
@@ -1690,7 +1690,7 @@
                         <svg width="18" height="18" viewBox="0 0 127.14 96.36" fill="currentColor">
                             <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
                         </svg>
-                        <span>Accedi con Discord</span>
+                        <span>Login with Discord</span>
                     </button>
                 `;
             }
@@ -1728,7 +1728,7 @@
                 await fetch('/api/auth/logout', { method: 'POST' });
             } catch (e) {}
             currentUser = null;
-            showToast("Disconnesso con successo", "success");
+            showToast("Logged out successfully", "success");
             renderAuthWidget();
             updateNavigationLocks();
         }
@@ -1754,7 +1754,7 @@
                         return;
                     }
                 } catch (e) {
-                    console.error("[Sync] Errore:", e);
+                    console.error("[Sync] Error:", e);
                 }
             }
 
@@ -1788,7 +1788,7 @@
             const ids = input.split(/[\s,]+/).map(id => id.trim()).filter(id => /^\d{16,21}$/.test(id));
 
             if (ids.length === 0) {
-                showToast("Inserisci almeno un Discord ID valido (16-21 cifre)", "warning");
+                showToast("Please enter at least one valid Discord ID (16-21 digits)", "warning");
                 return;
             }
 
@@ -1830,22 +1830,22 @@
                         if (data.success) {
                             nuovi.forEach(id => sharedArchiveSet.add(id));
                             updateLevel30Stats();
-                            showToast(`Archiviati ${nuovi.length} nuovi ID nel database`, "success");
+                            showToast(`Archived ${nuovi.length} new IDs to database`, "success");
                             loadSharedLogs();
                         } else {
                             throw new Error(data.error);
                         }
                     } catch (err) {
-                        showToast("Errore salvataggio server: " + err.message, "danger");
+                        showToast("Server save error: " + err.message, "danger");
                     }
                 } else {
                     nuovi.forEach(id => sharedArchiveSet.add(id));
                     localStorage.setItem('level30_history', JSON.stringify(Array.from(sharedArchiveSet)));
                     updateLevel30Stats();
-                    showToast(`Filtrati ${nuovi.length} nuovi ID (salvati in locale)`, "warning");
+                    showToast(`Filtered ${nuovi.length} new IDs (saved locally)`, "warning");
                 }
             } else {
-                showToast("Tutti gli ID inseriti sono già presenti nell'archivio.", "warning");
+                showToast("All entered IDs are already in the archive.", "warning");
             }
         }
 
@@ -1872,10 +1872,10 @@
 
             const filtered = searchVal ? allIds.filter(id => id.includes(searchVal)) : allIds;
 
-            document.getElementById('archiveFilteredCount').textContent = `Visualizzati ${filtered.length} di ${allIds.length} ID`;
+            document.getElementById('archiveFilteredCount').textContent = `Showing ${filtered.length} of ${allIds.length} IDs`;
 
             if (filtered.length === 0) {
-                listContainer.innerHTML = '<div style="text-align: center; color: var(--text-dim); padding: 24px;">Nessun ID trovato.</div>';
+                listContainer.innerHTML = '<div style="text-align: center; color: var(--text-dim); padding: 24px;">No IDs found.</div>';
                 return;
             }
 
@@ -1893,12 +1893,12 @@
                     <div class="archive-row">
                         <div class="archive-row-id">
                             <span>${id}</span>
-                            <button class="btn btn-secondary" style="padding: 2px 8px; font-size: 0.72rem; min-width: auto;" onclick="copiaID('${id}')">Copia</button>
+                            <button class="btn btn-secondary" style="padding: 2px 8px; font-size: 0.72rem; min-width: auto;" onclick="copiaID('${id}')">Copy</button>
                         </div>
                         <div class="archive-row-meta">
                             <span>${addedByStr}</span>
                             ${dateStr ? `<span>${dateStr}</span>` : ''}
-                            <button class="archive-delete-btn" onclick="cancellaIDArchivio('${id}')">Elimina</button>
+                            <button class="archive-delete-btn" onclick="cancellaIDArchivio('${id}')">Delete</button>
                         </div>
                     </div>
                 `;
@@ -1911,7 +1911,7 @@
 
         function copiaID(id) {
             navigator.clipboard.writeText(id).then(() => {
-                showToast(`ID ${id} copiato!`);
+                showToast(`ID ${id} copied!`);
             });
         }
 
@@ -1919,12 +1919,12 @@
             const allIds = Array.from(sharedArchiveSet).join('\n');
             if (!allIds) return;
             navigator.clipboard.writeText(allIds).then(() => {
-                showToast(`Copiati ${sharedArchiveSet.size} ID!`);
+                showToast(`Copied ${sharedArchiveSet.size} IDs!`);
             });
         }
 
         async function cancellaIDArchivio(targetId) {
-            if (!confirm(`Rimuovere l'ID ${targetId} dall'archivio condiviso?`)) return;
+            if (!confirm(`Remove ID ${targetId} from the shared archive?`)) return;
 
             if (isServerConnected) {
                 try {
@@ -1934,17 +1934,17 @@
                         sharedArchiveSet.delete(targetId);
                         updateLevel30Stats();
                         renderArchiveList();
-                        showToast(`ID ${targetId} rimosso.`);
+                        showToast(`ID ${targetId} removed.`);
                     }
                 } catch (e) {
-                    showToast("Errore eliminazione ID", "danger");
+                    showToast("Error deleting ID", "danger");
                 }
             } else {
                 sharedArchiveSet.delete(targetId);
                 localStorage.setItem('level30_history', JSON.stringify(Array.from(sharedArchiveSet)));
                 updateLevel30Stats();
                 renderArchiveList();
-                showToast(`ID ${targetId} rimosso in locale.`);
+                showToast(`ID ${targetId} removed locally.`);
             }
         }
 
@@ -1963,7 +1963,7 @@
                         return;
                     }
                 } catch (e) {
-                    console.error("Errore fetch logs:", e);
+                    console.error("Error fetching logs:", e);
                 }
             }
 
@@ -1976,12 +1976,12 @@
             if (!container) return;
 
             if (sharedLogs.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: var(--text-dim); padding: 24px;">Nessun log disponibile.</div>';
+                container.innerHTML = '<div style="text-align: center; color: var(--text-dim); padding: 24px;">No logs available.</div>';
                 return;
             }
 
             container.innerHTML = sharedLogs.map((log, index) => {
-                const user = log.user || { username: 'Locale', role: 'guest' };
+                const user = log.user || { username: 'Local', role: 'guest' };
                 const timeStr = log.timestamp ? new Date(log.timestamp).toLocaleString() : (log.time || '');
 
                 return `
@@ -1989,11 +1989,11 @@
                         <div class="log-info">
                             <img src="${user.avatarUrl || 'https://cdn.discordapp.com/embed/avatars/0.png'}" class="log-user-avatar" alt="Avatar">
                             <div class="log-texts">
-                                <span class="log-details">${log.action} (${log.count} ID)</span>
+                                <span class="log-details">${log.action} (${log.count} IDs)</span>
                                 <span class="log-time">${user.username} • ${timeStr}</span>
                             </div>
                         </div>
-                        <button class="btn btn-secondary" style="min-width: 80px; padding: 5px 12px; font-size: 0.82rem;" onclick="copyLogData(${index}, this)">Copia Output</button>
+                        <button class="btn btn-secondary" style="min-width: 80px; padding: 5px 12px; font-size: 0.82rem;" onclick="copyLogData(${index}, this)">Copy Output</button>
                     </div>
                 `;
             }).join('');
@@ -2004,7 +2004,7 @@
             if (!text) return;
             navigator.clipboard.writeText(text).then(() => {
                 const originalText = btnEl.textContent;
-                btnEl.textContent = 'Copiato';
+                btnEl.textContent = 'Copied';
                 btnEl.style.background = 'var(--success)';
                 setTimeout(() => {
                     btnEl.textContent = originalText;
@@ -2022,7 +2022,7 @@
 
             if (isServerConnected) {
                 window.location.href = '/api/backup';
-                showToast("Esportazione backup avviata");
+                showToast("Backup export started");
             } else {
                 const data = {
                     version: '2.0.0',
@@ -2036,7 +2036,7 @@
                 a.download = `backup_discord_ids_${Date.now()}.json`;
                 a.click();
                 URL.revokeObjectURL(url);
-                showToast("Backup locale esportato");
+                showToast("Local backup exported");
             }
         }
 
@@ -2068,7 +2068,7 @@
                         });
                         const resData = await res.json();
                         if (resData.success) {
-                            showToast(`Importati ${resData.importedCount} ID nel database`, "success");
+                            showToast(`Imported ${resData.importedCount} IDs into database`, "success");
                             await syncSharedArchive();
                         } else {
                             throw new Error(resData.error);
@@ -2078,10 +2078,10 @@
                         list.forEach(id => sharedArchiveSet.add(id));
                         localStorage.setItem('level30_history', JSON.stringify(Array.from(sharedArchiveSet)));
                         updateLevel30Stats();
-                        showToast(`Importati ${list.length} ID in locale`, "success");
+                        showToast(`Imported ${list.length} IDs locally`, "success");
                     }
                 } catch (err) {
-                    showToast("Formato file non valido", "danger");
+                    showToast("Invalid file format", "danger");
                 }
             };
             reader.readAsText(file);
@@ -2093,7 +2093,7 @@
                 return;
             }
 
-            if (!confirm("Attenzione: questa azione cancellerà tutti gli ID dall'archivio per tutti gli utenti. Confermi?")) {
+            if (!confirm("Warning: this action will permanently delete all IDs from the archive for all users. Do you confirm?")) {
                 return;
             }
 
@@ -2104,17 +2104,17 @@
                     if (data.success) {
                         sharedArchiveSet.clear();
                         updateLevel30Stats();
-                        showToast("Archivio globale svuotato", "danger");
+                        showToast("Global archive cleared", "danger");
                         loadSharedLogs();
                     }
                 } catch (e) {
-                    showToast("Errore durante lo svuotamento", "danger");
+                    showToast("Error clearing archive", "danger");
                 }
             } else {
                 sharedArchiveSet.clear();
                 localStorage.removeItem('level30_history');
                 updateLevel30Stats();
-                showToast("Archivio locale svuotato", "danger");
+                showToast("Local archive cleared", "danger");
             }
         }
 
@@ -2135,7 +2135,7 @@
                             renderArchiveList();
                         }
                         if (currentUser && data.addedBy && data.addedBy.id !== currentUser.id) {
-                            showToast(`${data.addedBy.username} ha aggiunto ${data.addedCount} nuovi ID all'archivio`);
+                            showToast(`${data.addedBy.username} added ${data.addedCount} new IDs to the archive`);
                         }
                     } else if (data.action === 'delete') {
                         sharedArchiveSet.delete(data.deletedId);
@@ -2146,7 +2146,7 @@
                     } else if (data.action === 'clear') {
                         sharedArchiveSet.clear();
                         updateLevel30Stats();
-                        showToast("L'archivio è stato azzerato", "warning");
+                        showToast("The archive was cleared", "warning");
                     }
                 });
 
@@ -2155,7 +2155,7 @@
                     setTimeout(setupLiveSyncSSE, 10000);
                 };
             } catch (err) {
-                console.warn("[LiveSync] SSE non disponibile:", err);
+                console.warn("[LiveSync] SSE unavailable:", err);
             }
         }
 
@@ -2216,7 +2216,7 @@
             const { unici, duplicates, validi } = parseIDs(text);
 
             if (validi.length === 0) {
-                showToast("Nessun ID valido inserito", "warning");
+                showToast("No valid IDs found", "warning");
                 return;
             }
 
@@ -2270,7 +2270,7 @@
             document.getElementById('count').textContent = validi.length;
             document.getElementById('duplicates').textContent = duplicates;
 
-            showToast("Lista elaborata");
+            showToast("Processing completed");
         }
 
         function copiaRisultato(elementId) {
@@ -2281,8 +2281,8 @@
             const originalText = btn.innerHTML;
 
             navigator.clipboard.writeText(text).then(() => {
-                showToast("Copiato negli appunti");
-                btn.innerHTML = "Copiato";
+                showToast("Copied to clipboard");
+                btn.innerHTML = "Copied";
                 btn.style.background = "var(--success)";
                 setTimeout(() => {
                     btn.innerHTML = originalText;
@@ -2334,7 +2334,7 @@
         function copiaComandoRole() {
             const el = event.currentTarget;
             navigator.clipboard.writeText("*role all -<@&951456227253170199>").then(() => {
-                showToast("Comando copiato", "success");
+                showToast("Command copied", "success");
                 el.style.background = 'rgba(46, 204, 113, 0.2)';
                 el.style.borderColor = 'var(--success)';
                 setTimeout(() => {
@@ -2421,7 +2421,7 @@
                     csOriginalImageData = csCtx.getImageData(0, 0, csCanvas.width, csCanvas.height);
                     csCurrentImage = img;
                     document.getElementById('emptyCanvasMsg').style.display = 'none';
-                    showToast("Immagine caricata");
+                    showToast("Image loaded");
                 };
                 img.src = event.target.result;
             };
@@ -2448,7 +2448,7 @@
 
         function applyColorSplash() {
             if (!csOriginalImageData) {
-                showToast("Carica prima un'immagine", "warning");
+                showToast("Please upload an image first", "warning");
                 return;
             }
 
@@ -2486,13 +2486,13 @@
             }
 
             csCtx.putImageData(newImageData, 0, 0);
-            showToast("Colore sostituito");
+            showToast("Color replaced");
         }
 
         function resetColorSplashImage() {
             if (!csOriginalImageData) return;
             csCtx.putImageData(csOriginalImageData, 0, 0);
-            showToast("Immagine ripristinata");
+            showToast("Image reset");
         }
 
         function clearColorSplash() {
@@ -2508,7 +2508,7 @@
 
         function downloadColorSplash() {
             if (!csOriginalImageData) {
-                showToast("Nessuna immagine", "warning");
+                showToast("No image to download", "warning");
                 return;
             }
             const a = document.createElement('a');
@@ -2547,17 +2547,17 @@
             const currentIndex = parseInt(select.value);
 
             if (currentIndex === 0) {
-                btn.innerHTML = "Inizia Hosting (Game 1)";
+                btn.innerHTML = "Start Hosting (Game 1)";
                 btn.disabled = false;
                 btn.style.opacity = '1';
                 btn.className = 'btn btn-primary';
             } else if (currentIndex < presetsList.length) {
-                btn.innerHTML = `Prossimo Preset (Game ${currentIndex + 1})`;
+                btn.innerHTML = `Next Preset (Game ${currentIndex + 1})`;
                 btn.disabled = false;
                 btn.style.opacity = '1';
                 btn.className = 'btn btn-primary';
             } else {
-                btn.innerHTML = "Tutti i Preset Inviati";
+                btn.innerHTML = "All Presets Sent";
                 btn.disabled = true;
                 btn.style.opacity = '0.7';
                 btn.className = 'btn btn-secondary';
@@ -2595,7 +2595,7 @@
                     output.textContent = presetText;
                     document.getElementById('presetOutputSection').style.display = 'block';
                     navigator.clipboard.writeText(presetText).then(() => {
-                        showToast(`Preset ${currentIndex} copiato`);
+                        showToast(`Preset ${currentIndex} copied`);
                     });
                 } else {
                     document.getElementById('presetOutputSection').style.display = 'none';
@@ -2608,7 +2608,7 @@
             let currentIndex = parseInt(select.value);
 
             if (currentIndex >= presetsList.length) {
-                showToast("Tutti i preset sono stati inviati", "warning");
+                showToast("All presets have been sent", "warning");
                 return;
             }
 
@@ -2623,7 +2623,7 @@
             saveState();
 
             navigator.clipboard.writeText(presetText).then(() => {
-                showToast(`Preset ${currentIndex} copiato`);
+                showToast(`Preset ${currentIndex} copied`);
             });
         }
 
@@ -2632,7 +2632,7 @@
             document.getElementById('presetOutputSection').style.display = 'none';
             updatePresetHUD();
             saveState();
-            showToast("Sequenza preset azzerata");
+            showToast("Presets sequence reset");
         }
 
         const generalPresetsList = [
@@ -2647,7 +2647,7 @@
         function copyGeneralPreset(index) {
             const presetText = generalPresetsList[index];
             navigator.clipboard.writeText(presetText).then(() => {
-                showToast("Preset copiato");
+                showToast("Preset copied");
             });
         }
 
@@ -2718,7 +2718,7 @@
                     const reader = new FileReader();
                     reader.onload = ev => {
                         document.getElementById('idInput').value = ev.target.result;
-                        showToast("File caricato");
+                        showToast("File loaded");
                     };
                     reader.readAsText(file);
                 }
@@ -2733,7 +2733,7 @@
                         const reader = new FileReader();
                         reader.onload = ev => {
                             document.getElementById('idInput').value = ev.target.result;
-                            showToast("File caricato");
+                            showToast("File loaded");
                         };
                         reader.readAsText(file);
                     }
@@ -2745,16 +2745,16 @@
         // URL Query Params
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('login_success')) {
-            showToast("Accesso Discord completato", "success");
+            showToast("Discord login completed", "success");
             window.history.replaceState({}, document.title, window.location.pathname);
         } else if (urlParams.get('oauth_error')) {
             const errType = urlParams.get('oauth_error');
             if (errType === 'not_configured') {
-                showToast("Discord Auth: Credenziali non rilevate. Verifica il file .env", "danger");
+                showToast("Discord Auth: Credentials not detected. Check .env file", "danger");
             } else if (errType === 'token_exchange_failed') {
-                showToast("Errore Discord: Verifica Client Secret e Redirect URI nel Discord Developer Portal", "danger");
+                showToast("Discord error: Verify Client Secret and Redirect URI in Discord Developer Portal", "danger");
             } else {
-                showToast("Errore autenticazione Discord (" + errType + ")", "danger");
+                showToast("Discord authentication error (" + errType + ")", "danger");
             }
             window.history.replaceState({}, document.title, window.location.pathname);
         }

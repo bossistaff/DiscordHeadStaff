@@ -8,6 +8,9 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy for Render / Cloud hosting HTTPS reverse proxies
+app.set('trust proxy', 1);
+
 // Authorized IDs configuration
 const CREATOR_ID = "459683716634247172";
 const ADMIN_IDS = [
@@ -17,12 +20,12 @@ const ADMIN_IDS = [
 ];
 const ALL_AUTHORIZED_IDS = new Set([CREATOR_ID, ...ADMIN_IDS]);
 
-// Known users metadata for pleasant display (will be enriched on Discord login)
+// Known users metadata
 const KNOWN_USERS = {
-    "459683716634247172": { username: "Creatore", role: "creator", badge: "Creatore 👑" },
-    "817378206520836156": { username: "Admin 1", role: "admin", badge: "Admin 🛡️" },
-    "422345185415135232": { username: "Admin 2", role: "admin", badge: "Admin 🛡️" },
-    "510792663210131456": { username: "Admin 3", role: "admin", badge: "Admin 🛡️" }
+    "459683716634247172": { username: "Creator", role: "creator", badge: "Creator 👑" },
+    "817378206520836156": { username: "Admin 1", role: "admin", badge: "Admin" },
+    "422345185415135232": { username: "Admin 2", role: "admin", badge: "Admin" },
+    "510792663210131456": { username: "Admin 3", role: "admin", badge: "Admin" }
 };
 
 // Database persistence
@@ -50,9 +53,9 @@ if (fs.existsSync(DB_FILE)) {
         if (parsed.level30_archive) db.level30_archive = parsed.level30_archive;
         if (parsed.logs) db.logs = parsed.logs;
         if (parsed.settings) db.settings = parsed.settings;
-        console.log(`[DB] Caricati ${db.level30_archive.length} ID nell'archivio e ${db.logs.length} log.`);
+        console.log(`[DB] Loaded ${db.level30_archive.length} IDs in archive and ${db.logs.length} logs.`);
     } catch (e) {
-        console.error('[DB] Errore lettura database, inizializzazione nuovo:', e);
+        console.error('[DB] Error reading database, initializing fresh:', e);
     }
 } else {
     saveDatabase();
@@ -79,7 +82,7 @@ function saveDatabase() {
         fs.writeFileSync(tempFile, JSON.stringify(db, null, 2), 'utf-8');
         fs.renameSync(tempFile, DB_FILE);
     } catch (err) {
-        console.error('[DB] Errore salvataggio database:', err);
+        console.error('[DB] Error saving database:', err);
     }
 }
 
@@ -129,7 +132,7 @@ function authMiddleware(req, res, next) {
 
 function requireAuth(req, res, next) {
     if (!req.user) {
-        return res.status(401).json({ success: false, error: "Accesso non autorizzato. Effettua il login." });
+        return res.status(401).json({ success: false, error: "Unauthorized access. Please login." });
     }
     next();
 }
@@ -138,7 +141,7 @@ function requireAdmin(req, res, next) {
     if (!req.user || !isAuthorized(req.user.id)) {
         return res.status(403).json({
             success: false,
-            error: "Accesso negato. Solo il Creatore e gli Admin autorizzati possono accedere a questa sezione."
+            error: "Access denied. Only the Creator and authorized Admins can access this section."
         });
     }
     next();
@@ -204,7 +207,7 @@ app.get('/api/auth/me', (req, res) => {
 app.get('/api/auth/discord', (req, res) => {
     reloadEnv();
     const clientId = process.env.DISCORD_CLIENT_ID;
-    const redirectUri = process.env.DISCORD_REDIRECT_URI || `http://localhost:${PORT}/api/auth/discord/callback`;
+    const redirectUri = process.env.DISCORD_REDIRECT_URI || 'https://discordheadstaff.onrender.com/api/auth/discord/callback';
 
     if (!clientId || clientId === 'YOUR_DISCORD_CLIENT_ID') {
         return res.redirect('/?oauth_error=not_configured');
@@ -220,8 +223,7 @@ app.get('/api/auth/discord', (req, res) => {
 // Discord OAuth2 Callback
 app.get('/api/auth/discord/callback', async (req, res) => {
     reloadEnv();
-    const { code, state } = req.query;
-    const storedState = req.cookies.oauth_state;
+    const { code } = req.query;
 
     if (!code) {
         return res.redirect('/?oauth_error=no_code');
@@ -230,7 +232,7 @@ app.get('/api/auth/discord/callback', async (req, res) => {
     try {
         const clientId = process.env.DISCORD_CLIENT_ID;
         const clientSecret = process.env.DISCORD_CLIENT_SECRET;
-        const redirectUri = process.env.DISCORD_REDIRECT_URI || `http://localhost:${PORT}/api/auth/discord/callback`;
+        const redirectUri = process.env.DISCORD_REDIRECT_URI || 'https://discordheadstaff.onrender.com/api/auth/discord/callback';
 
         // 1. Exchange code for access token
         const tokenRes = await fetch('https://discord.com/api/oauth2/token', {
@@ -247,7 +249,7 @@ app.get('/api/auth/discord/callback', async (req, res) => {
 
         if (!tokenRes.ok) {
             const errBody = await tokenRes.text();
-            console.error('[OAuth] Errore scambio token Discord:', errBody);
+            console.error('[OAuth] Token exchange error:', errBody);
             return res.redirect('/?oauth_error=token_exchange_failed');
         }
 
@@ -260,7 +262,7 @@ app.get('/api/auth/discord/callback', async (req, res) => {
         });
 
         if (!userRes.ok) {
-            console.error('[OAuth] Errore recupero profilo utente');
+            console.error('[OAuth] Error fetching Discord user profile');
             return res.redirect('/?oauth_error=user_fetch_failed');
         }
 
@@ -292,10 +294,10 @@ app.get('/api/auth/discord/callback', async (req, res) => {
             maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
         });
 
-        console.log(`[AUTH] Login riuscito: ${userData.username} (${userId}) - Ruolo: ${role}`);
+        console.log(`[AUTH] Login successful: ${userData.username} (${userId}) - Role: ${role}`);
         res.redirect('/?login_success=1');
     } catch (err) {
-        console.error('[OAuth] Errore callback:', err);
+        console.error('[OAuth] Callback error:', err);
         res.redirect('/?oauth_error=internal_error');
     }
 });
@@ -314,7 +316,6 @@ app.post('/api/auth/logout', (req, res) => {
 
 // GET /api/level30: Get all archived IDs and details
 app.get('/api/level30', (req, res) => {
-    // Both authorized admins and viewers can retrieve current archive count and IDs
     const idList = Array.from(archiveIdSet);
     res.json({
         success: true,
@@ -329,16 +330,15 @@ app.get('/api/level30', (req, res) => {
 app.post('/api/level30/add', requireAdmin, (req, res) => {
     const { ids } = req.body;
     if (!ids || !Array.isArray(ids)) {
-        return res.status(400).json({ success: false, error: "Formato non valido: atteso array di IDs." });
+        return res.status(400).json({ success: false, error: "Invalid format: array of IDs expected." });
     }
 
-    // Clean and validate IDs (digits only, valid discord snowflake length)
     const validIds = ids
         .map(id => String(id).trim())
         .filter(id => /^\d{16,21}$/.test(id));
 
     if (validIds.length === 0) {
-        return res.status(400).json({ success: false, error: "Nessun ID Discord valido fornito." });
+        return res.status(400).json({ success: false, error: "No valid Discord IDs provided." });
     }
 
     const uniqueNew = [...new Set(validIds)].filter(id => !archiveIdSet.has(id));
@@ -349,7 +349,7 @@ app.post('/api/level30/add', requireAdmin, (req, res) => {
             addedCount: 0,
             alreadyExistingCount: validIds.length,
             totalCount: archiveIdSet.size,
-            message: "Tutti gli ID forniti erano già presenti nell'archivio condiviso."
+            message: "All provided IDs are already in the shared archive."
         });
     }
 
@@ -376,7 +376,7 @@ app.post('/api/level30/add', requireAdmin, (req, res) => {
     // Add shared audit log
     const logEntry = {
         id: 'log_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
-        action: 'Level 30 Filter (Aggiunta)',
+        action: 'Level 30 Filter (Addition)',
         count: uniqueNew.length,
         output: uniqueNew.join('\n'),
         user: userInfo,
@@ -396,7 +396,7 @@ app.post('/api/level30/add', requireAdmin, (req, res) => {
         newIds: uniqueNew
     });
 
-    console.log(`[ARCHIVIO] ${userInfo.username} (${userInfo.id}) ha aggiunto ${uniqueNew.length} nuovi ID.`);
+    console.log(`[ARCHIVE] ${userInfo.username} (${userInfo.id}) added ${uniqueNew.length} new IDs.`);
 
     res.json({
         success: true,
@@ -411,7 +411,7 @@ app.post('/api/level30/add', requireAdmin, (req, res) => {
 app.delete('/api/level30/id/:id', requireAdmin, (req, res) => {
     const targetId = req.params.id;
     if (!archiveIdSet.has(targetId)) {
-        return res.status(404).json({ success: false, error: "ID non trovato nell'archivio." });
+        return res.status(404).json({ success: false, error: "ID not found in archive." });
     }
 
     archiveIdSet.delete(targetId);
@@ -443,9 +443,9 @@ app.post('/api/level30/clear', requireAdmin, (req, res) => {
 
     const logEntry = {
         id: 'log_' + Date.now(),
-        action: 'Reset Completo Archivio Level 30',
+        action: 'Complete Archive Reset',
         count: previousCount,
-        output: `Archivio svuotato da ${userInfo.username} (${previousCount} ID rimossi).`,
+        output: `Archive cleared by ${userInfo.username} (${previousCount} IDs removed).`,
         user: userInfo,
         timestamp: new Date().toISOString()
     };
@@ -459,7 +459,7 @@ app.post('/api/level30/clear', requireAdmin, (req, res) => {
         clearedBy: userInfo
     });
 
-    res.json({ success: true, message: "Archivio svuotato con successo." });
+    res.json({ success: true, message: "Archive cleared successfully." });
 });
 
 // --- LOGS ROUTES ---
@@ -477,7 +477,7 @@ app.post('/api/logs/add', requireAdmin, (req, res) => {
     const { action, count, output } = req.body;
     const logEntry = {
         id: 'log_' + Date.now(),
-        action: action || 'Elaborazione ID',
+        action: action || 'ID Processing',
         count: count || 0,
         output: output || '',
         user: {
@@ -516,7 +516,7 @@ app.get('/api/backup', requireAdmin, (req, res) => {
 app.post('/api/backup/import', requireAdmin, (req, res) => {
     const { data } = req.body;
     if (!data) {
-        return res.status(400).json({ success: false, error: "Nessun dato di backup fornito." });
+        return res.status(400).json({ success: false, error: "No backup data provided." });
     }
 
     let idsToImport = [];
@@ -599,10 +599,10 @@ app.get('*', (req, res) => {
 // Start Server
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`=======================================================`);
-    console.log(`🚀 Discord ID Pro Server avviato con successo!`);
-    console.log(`🌐 URL Locale: http://localhost:${PORT}`);
-    console.log(`👑 Creatore: ${CREATOR_ID}`);
-    console.log(`🛡️ Admin Autorizzati: ${ADMIN_IDS.join(', ')}`);
-    console.log(`📦 ID in Archivio Globale: ${archiveIdSet.size}`);
+    console.log(`🚀 Discord ID Pro Server running!`);
+    console.log(`🌐 Port: ${PORT}`);
+    console.log(`👑 Creator: ${CREATOR_ID}`);
+    console.log(`🛡️ Authorized Admins: ${ADMIN_IDS.join(', ')}`);
+    console.log(`📦 Global Archive Count: ${archiveIdSet.size}`);
     console.log(`=======================================================`);
 });

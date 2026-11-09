@@ -1,6 +1,21 @@
+```gitignore
+# Dipendenze
 node_modules/
+
+# Credenziali e configurazioni private
 .env
+.env.*
+!.env.example
+
+# Database e dati privati
+data/database.json
 data/database.json.tmp
+data/*.db
+
+# File temporanei
 .DS_Store
 Thumbs.db
-
+*.log
+__pycache__/
+*.pyc
+```
