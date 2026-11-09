@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Riordina ID Discord</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --primary: #1abc9c;
+      --primary-hover: #16a085;
+      --bg-gradient: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg-gradient);
+      color: #f1f1f1;
+      margin: 0;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background-color: var(--card-bg);
+      padding: 30px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 800px;
+      box-shadow: var(--box-shadow);
+      margin-top: 20px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 10px;
+      width: 90%;
+      max-width: 800px;
+      margin-bottom: 0;
+    }
+
+    .tab-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #ccc;
+      padding: 12px 25px;
+      border-radius: 10px 10px 0 0;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .tab-btn.active {
+      background: var(--card-bg);
+      color: var(--primary);
+      border-bottom: 2px solid var(--primary);
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 2rem;
+      letter-spacing: 1px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 150px;
+      resize: vertical;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.2);
+      color: #fff;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--primary);
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-size: 15px;
+      color: #ddd;
+    }
+
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    button.secondary {
+      background-color: rgba(255,255,255,0.1);
+      color: #eee;
+    }
+
+    button.secondary:hover {
+      background-color: rgba(255,255,255,0.2);
+    }
+
+    button.danger {
+      background-color: #e74c3c;
+    }
+
+    button.danger:hover {
+      background-color: #c0392b;
+    }
+
+    .output-box {
+      background-color: rgba(0, 0, 0, 0.4);
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-family: 'Consolas', monospace;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      min-height: 80px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .copied, .invalid-msg {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+      padding: 8px;
+      border-radius: 4px;
+    }
+
+    .copied {
+      color: #2ecc71;
+      display: none;
+      background: rgba(46, 204, 113, 0.1);
+    }
+
+    .invalid-msg {
+      color: #e74c3c;
+      display: none;
+      background: rgba(231, 76, 60, 0.1);
+    }
+
+    .stats {
+      font-size: 14px;
+      margin: 15px 0;
+      padding: 10px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .drop-area {
+      border: 2px dashed rgba(255,255,255,0.2);
+      padding: 15px;
+      text-align: center;
+      margin: 10px 0;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #aaa;
+      transition: all 0.3s;
+    }
+
+    .drop-area.drag-over {
+      border-color: var(--primary);
+      background: rgba(26, 188, 156, 0.05);
+      color: var(--primary);
+    }
+
+    .options {
+      display: flex;
+      gap: 20px;
+      margin: 15px 0;
+      flex-wrap: wrap;
+    }
+
+    .options label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.85);
+      padding: 15px 25px;
+      color: white;
+      border-radius: 10px;
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 9999;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+      border-left: 4px solid var(--primary);
+      transform: translateY(20px);
+    }
+
+    .notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .history-badge {
+      font-size: 11px;
+      background: #f39c12;
+      color: #000;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 5px;
+      font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+      .nav-tabs { width: 95%; }
+      .container { padding: 20px; }
+      .controls { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchPage('standard')">IDs Standard</button>
+    <button class="tab-btn" onclick="switchPage('level30')">Level 30 <span id="historyCountBadge" class="history-badge">0</span></button>
+  </div>
+
+  <div class="container">
+    <!-- PAGE 1: IDs STANDARD -->
+    <div id="page-standard" class="page active">
+      <h1>Riordina ID Discord</h1>
+
+      <textarea id="idInput" placeholder="Inserisci gli ID Discord qui..."></textarea>
+      <div class="drop-area" id="dropArea">Trascina qui un file .txt o .csv con ID</div>
+
+      <label for="excludeInput"><strong>ID da escludere (uno per riga, spazio o virgola):</strong></label>
+      <textarea id="excludeInput" placeholder="Inserisci ID da escludere..." style="height: 80px;"></textarea>
+
+      <div class="stats">
+        <div><strong>Validi:</strong> <span id="count">0</span></div>
+        <div><strong>Duplicati:</strong> <span id="duplicates">0</span></div>
+      </div>
+
+      <div class="options">
+        <label><input type="checkbox" id="sortDesc" /> Ordina Decrescente</label>
+        <label><input type="checkbox" id="newlineOutput" /> Nuova riga</label>
+      </div>
+
+      <div class="controls">
+        <button onclick="riordinaID()">Elabora</button>
+        <button class="secondary" onclick="copiaRisultato()">Copia</button>
+        <button class="secondary" onclick="scaricaTXT()">Scarica TXT</button>
+        <button class="secondary" onclick="resetta()">Pulisci</button>
+      </div>
+
+      <div id="output" class="output-box"></div>
+      <div id="copiedMsg" class="copied" role="alert">Copiato!</div>
+    </div>
+
+    <!-- PAGE 2: LEVEL 30 -->
+    <div id="page-level30" class="page">
+      <h1>Level 30 Filter</h1>
+      <p style="text-align: center; color: #aaa; margin-top: -15px; font-size: 14px;">
+        Gli ID inseriti qui verranno ricordati e rimossi automaticamente in futuro.
+      </p>
+
+      <textarea id="idInput30" placeholder="Incolla qui gli ID per Level 30..."></textarea>
+      
+      <div class="stats">
+        <div><strong>Nuovi:</strong> <span id="count30">0</span></div>
+        <div><strong>Già visti:</strong> <span id="historyRemoved30">0</span></div>
+        <div><strong>In Archivio:</strong> <span id="historyTotal30">0</span></div>
+      </div>
+
+      <div class="options">
+        <label><input type="checkbox" id="sortDesc30" /> Ordina Decrescente</label>
+        <label><input type="checkbox" id="newlineOutput30" checked /> Nuova riga</label>
+      </div>
+
+      <div class="controls">
+        <button onclick="elaboraLevel30()">Elabora</button>
+        <button class="secondary" onclick="copiaRisultato30()">Copia</button>
+        <button class="danger" onclick="pulisciArchivio()">Resetta Archivio</button>
+        <button class="secondary" onclick="resetta30()">Pulisci Box</button>
+      </div>
+
+      <div id="output30" class="output-box"></div>
+      <div id="copiedMsg30" class="copied" role="alert">Copiato!</div>
+    </div>
+
+    <div id="invalidMsg" class="invalid-msg" role="alert"></div>
+  </div>
+
+  <div id="notif" class="notification"></div>
+
+  <script>
+    // Elements - Page Standard
+    const idInput = document.getElementById('idInput');
+    const excludeInput = document.getElementById('excludeInput');
+    const countDisplay = document.getElementById('count');
+    const duplicatesDisplay = document.getElementById('duplicates');
+    const output = document.getElementById('output');
+    const copiedMsg = document.getElementById('copiedMsg');
+    const sortDesc = document.getElementById('sortDesc');
+    const newlineOutput = document.getElementById('newlineOutput');
+    const dropArea = document.getElementById('dropArea');
+
+    // Elements - Page Level 30
+    const idInput30 = document.getElementById('idInput30');
+    const countDisplay30 = document.getElementById('count30');
+    const historyRemovedDisplay30 = document.getElementById('historyRemoved30');
+    const historyTotalDisplay30 = document.getElementById('historyTotal30');
+    const output30 = document.getElementById('output30');
+    const copiedMsg30 = document.getElementById('copiedMsg30');
+    const sortDesc30 = document.getElementById('sortDesc30');
+    const newlineOutput30 = document.getElementById('newlineOutput30');
+    const historyBadge = document.getElementById('historyCountBadge');
+
+    // Common
+    const invalidMsg = document.getElementById('invalidMsg');
+
+    /* ------------------------- NAVIGATION ------------------------- */
+    function switchPage(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      
+      document.getElementById('page-' + pageId).classList.add('active');
+      event.target.closest('.tab-btn').classList.add('active');
+      
+      invalidMsg.style.display = 'none';
+      if(pageId === 'level30') updateLevel30Stats();
+    }
+
+    /* ------------------------- NOTIFICATION ------------------------- */
+    function showNotification(message) {
+      const notif = document.getElementById('notif');
+      notif.textContent = message;
+      notif.classList.add('show');
+
+      setTimeout(() => {
+        notif.classList.remove('show');
+      }, 3000);
+    }
+
+    /* ------------------------- LEVEL 30 LOGIC ------------------------- */
+    function getLevel30History() {
+      return JSON.parse(localStorage.getItem('level30_history') || '[]');
+    }
+
+    function saveLevel30History(history) {
+      localStorage.setItem('level30_history', JSON.stringify(history));
+      updateLevel30Stats();
+    }
+
+    function updateLevel30Stats() {
+      const history = getLevel30History();
+      historyTotalDisplay30.textContent = history.length;
+      historyBadge.textContent = history.length;
+    }
+
+    function elaboraLevel30() {
+      const raw = idInput30.value;
+      const ids = raw.split(/[\s,]+/).map(id => id.trim()).filter(id => /^\d+$/.test(id));
+      const history = getLevel30History();
+      
+      const uniciInput = [...new Set(ids)];
+      const giaVisti = uniciInput.filter(id => history.includes(id));
+      const nuovi = uniciInput.filter(id => !history.includes(id));
+      
+      if (sortDesc30.checked) {
+        nuovi.sort((a, b) => b - a);
+      }
+
+      output30.textContent = newlineOutput30.checked ? nuovi.join('\n') : nuovi.join(' ');
+      
+      countDisplay30.textContent = nuovi.length;
+      historyRemovedDisplay30.textContent = giaVisti.length;
+
+      if (nuovi.length > 0) {
+        const updatedHistory = [...history, ...nuovi];
+        saveLevel30History(updatedHistory);
+        showNotification(`Elaborati ${nuovi.length} nuovi ID.`);
+      } else if (uniciInput.length > 0) {
+        showNotification("Tutti gli ID inseriti sono già presenti in archivio.");
+      } else {
+        showNotification("Nessun ID valido trovato.");
+      }
+    }
+
+    function copiaRisultato30() {
+      const text = output30.textContent.trim();
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        copiedMsg30.style.display = 'block';
+        setTimeout(() => copiedMsg30.style.display = 'none', 2000);
+      });
+    }
+
+    function pulisciArchivio() {
+      if (confirm("Sei sicuro di voler cancellare TUTTA la cronologia di Level 30? Azione irreversibile.")) {
+        localStorage.removeItem('level30_history');
+        updateLevel30Stats();
+        showNotification("Archivio svuotato.");
+      }
+    }
+
+    function resetta30() {
+      idInput30.value = '';
+      output30.textContent = '';
+      countDisplay30.textContent = '0';
+      historyRemovedDisplay30.textContent = '0';
+    }
+
+    /* -------------------------- STANDARD LOGIC -------------------------- */
+    idInput.addEventListener('input', aggiornaConteggio);
+
+    function analizzaInput() {
+      const ids = idInput.value.split(/[\s,]+/).map(id => id.trim()).filter(id => id.length);
+      const validi = ids.filter(id => /^\d+$/.test(id));
+      const nonValidi = ids.filter(id => id && !/^\d+$/.test(id));
+      const unici = [...new Set(validi)];
+      const duplicati = validi.length - unici.length;
+      return { validi, unici, nonValidi, duplicati };
+    }
+
+    function aggiornaConteggio() {
+      const { validi, nonValidi, duplicati } = analizzaInput();
+      countDisplay.textContent = validi.length;
+      duplicatesDisplay.textContent = duplicati;
+
+      if (nonValidi.length > 0) {
+        invalidMsg.textContent = `ID non validi: ${nonValidi.slice(0, 5).join(', ')}${nonValidi.length > 5 ? '...' : ''}`;
+        invalidMsg.style.display = 'block';
+      } else {
+        invalidMsg.style.display = 'none';
+      }
+    }
+
+    function riordinaID() {
+      const { unici } = analizzaInput();
+      const excluded = excludeInput.value.split(/[\s,]+/).map(x => x.trim()).filter(x => /^\d+$/.test(x));
+
+      let finalList = unici.filter(id => !excluded.includes(id));
+
+      if (sortDesc.checked) {
+        finalList.sort((a, b) => b - a);
+      }
+
+      output.textContent = newlineOutput.checked ? finalList.join('\n') : finalList.join(' ');
+      showNotification("ID elaborati.");
+    }
+
+    function copiaRisultato() {
+      const text = output.textContent.trim();
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        copiedMsg.style.display = 'block';
+        setTimeout(() => copiedMsg.style.display = 'none', 2000);
+      });
+    }
+
+    function scaricaTXT() {
+      const content = output.textContent.trim();
+      if (!content) return;
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'id_discord.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function resetta() {
+      idInput.value = '';
+      excludeInput.value = '';
+      output.textContent = '';
+      aggiornaConteggio();
+    }
+
+    /* ------------------------- DRAG & DROP --------------------------- */
+    dropArea.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropArea.classList.add('drag-over');
+    });
+
+    dropArea.addEventListener('dragleave', () => {
+      dropArea.classList.remove('drag-over');
+    });
+
+    dropArea.addEventListener('drop', e => {
+      e.preventDefault();
+      dropArea.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && (file.name.endsWith('.txt') || file.name.endsWith('.csv'))) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          idInput.value = reader.result;
+          aggiornaConteggio();
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    // Init
+    updateLevel30Stats();
+  </script>
+</body>
+</html>

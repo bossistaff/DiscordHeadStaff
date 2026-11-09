@@ -1,0 +1,2773 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord ID Pro | Advanced Manager</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5865F2;
+            --primary-glow: rgba(88, 101, 242, 0.35);
+            --accent: #00D2FF;
+            --accent-glow: rgba(0, 210, 255, 0.25);
+            --bg-dark: #0a0c10;
+            --card-bg: rgba(255, 255, 255, 0.025);
+            --card-border: rgba(255, 255, 255, 0.07);
+            --text-main: #edf0f5;
+            --text-dim: #9aa1ad;
+            --success: #2ecc71;
+            --danger: #ff4757;
+            --warning: #ffa502;
+            --font-main: 'Inter', sans-serif;
+            --font-heading: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --glass-blur: blur(14px);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-dark);
+            background-image:
+                radial-gradient(circle at 12% 10%, rgba(88, 101, 242, 0.14) 0%, transparent 45%),
+                radial-gradient(circle at 88% 90%, rgba(0, 210, 255, 0.1) 0%, transparent 45%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        body.light-mode {
+            --bg-dark: #f2f4f8;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-border: rgba(0, 0, 0, 0.08);
+            --text-main: #181a20;
+            --text-dim: #556070;
+        }
+
+        body.light-mode .output-box,
+        body.light-mode textarea {
+            background: rgba(0, 0, 0, 0.04);
+            color: #181a20;
+        }
+
+        body.light-mode h1 {
+            background: linear-gradient(135deg, #181a20 0%, #4a5568 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Ambient Background Blur */
+        .ambient-blur {
+            position: fixed;
+            width: 450px;
+            height: 450px;
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(130px);
+            opacity: 0.35;
+            pointer-events: none;
+        }
+
+        .blur-1 {
+            top: -120px;
+            right: -100px;
+            background: var(--primary);
+        }
+
+        .blur-2 {
+            bottom: -120px;
+            left: -100px;
+            background: var(--accent);
+        }
+
+        /* Top Header */
+        .top-bar {
+            width: 95%;
+            max-width: 960px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            margin-top: 18px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            backdrop-filter: var(--glass-blur);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            z-index: 50;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, #4752c4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .brand-title {
+            font-family: var(--font-heading);
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: var(--text-main);
+        }
+
+        .brand-sub {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: var(--success);
+            box-shadow: 0 0 6px var(--success);
+        }
+
+        /* User Profile & Auth */
+        .auth-widget {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-discord-login {
+            background: #5865F2;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.86rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            box-shadow: 0 4px 14px rgba(88, 101, 242, 0.35);
+            text-decoration: none;
+        }
+
+        .btn-discord-login:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--card-border);
+            padding: 4px 12px 4px 6px;
+            border-radius: 12px;
+        }
+
+        body.light-mode .user-card {
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        .user-avatar-wrap {
+            position: relative;
+            width: 32px;
+            height: 32px;
+        }
+
+        .user-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+        }
+
+        .user-avatar-badge {
+            position: absolute;
+            bottom: -1px;
+            right: -1px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background-color: var(--success);
+            border: 2px solid var(--bg-dark);
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .user-name {
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: var(--text-main);
+            max-width: 130px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .role-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            padding: 1px 6px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            margin-top: 2px;
+            width: fit-content;
+        }
+
+        .role-creator {
+            background: rgba(255, 215, 0, 0.15);
+            color: #ffd700;
+            border: 1px solid rgba(255, 215, 0, 0.35);
+        }
+
+        .role-admin {
+            background: rgba(88, 101, 242, 0.18);
+            color: #8c97ff;
+            border: 1px solid rgba(88, 101, 242, 0.35);
+        }
+
+        .role-guest {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-dim);
+        }
+
+        .btn-auth-action {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-dim);
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .btn-auth-action:hover {
+            background: rgba(255, 71, 87, 0.15);
+            color: var(--danger);
+            border-color: rgba(255, 71, 87, 0.3);
+        }
+
+        /* Navigation */
+        .nav-container {
+            display: flex;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 5px;
+            border-radius: 16px;
+            gap: 4px;
+            margin: 20px 0;
+            backdrop-filter: var(--glass-blur);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+            flex-wrap: wrap;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .nav-item {
+            padding: 9px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-dim);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            border: none;
+            background: transparent;
+            font-size: 0.9rem;
+            position: relative;
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .nav-item:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-main);
+        }
+
+        .nav-item.locked {
+            opacity: 0.6;
+        }
+
+        .nav-item.locked:hover {
+            opacity: 0.9;
+            background: rgba(255, 71, 87, 0.08);
+            color: #ff8591;
+        }
+
+        .nav-lock-svg {
+            width: 13px;
+            height: 13px;
+            opacity: 0.7;
+            margin-left: 2px;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 2px 7px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        /* Main Container */
+        .container {
+            width: 95%;
+            max-width: 960px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 34px;
+            backdrop-filter: var(--glass-blur);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+            margin-bottom: 60px;
+            animation: fadeIn 0.4s ease-out;
+            position: relative;
+        }
+
+        body.light-mode .container {
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06), inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography */
+        h1 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 2rem;
+            margin-bottom: 0.3rem;
+            color: var(--text-main);
+            letter-spacing: -0.3px;
+        }
+
+        p.subtitle {
+            color: var(--text-dim);
+            font-size: 0.92rem;
+            margin-bottom: 1.6rem;
+        }
+
+        /* Pages */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(6px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Cloud Info Banner */
+        .cloud-banner {
+            background: rgba(88, 101, 242, 0.08);
+            border: 1px solid rgba(88, 101, 242, 0.2);
+            border-radius: 12px;
+            padding: 12px 18px;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .cloud-banner-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.88rem;
+            color: var(--text-dim);
+        }
+
+        .cloud-banner-info strong {
+            color: var(--text-main);
+        }
+
+        /* Form Elements */
+        .field-group {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.86rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.28);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 14px;
+            color: white;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            resize: vertical;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .textarea-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .btn-clear {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: var(--text-dim);
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: var(--transition);
+            opacity: 0;
+        }
+
+        .textarea-wrapper:hover .btn-clear,
+        .textarea-wrapper:focus-within .btn-clear {
+            opacity: 1;
+        }
+
+        .btn-clear:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            padding: 14px;
+            border-radius: 12px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: var(--font-heading);
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-dim);
+            margin-top: 3px;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        button.btn {
+            padding: 11px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 130px;
+        }
+
+        button.btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: white;
+            border: 1px solid var(--card-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: rgba(255, 71, 87, 0.12);
+            color: var(--danger);
+            border: 1px solid rgba(255, 71, 87, 0.2);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-accent {
+            background: rgba(0, 210, 255, 0.12);
+            color: var(--accent);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+        }
+
+        .btn-accent:hover {
+            background: rgba(0, 210, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Output Box */
+        .output-container {
+            margin-top: 26px;
+            border-top: 1px solid var(--card-border);
+            padding-top: 20px;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .output-box {
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+            min-height: 90px;
+            max-height: 380px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            font-size: 0.88rem;
+        }
+
+        /* Options */
+        .options-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            cursor: pointer;
+            color: var(--text-dim);
+            font-size: 0.86rem;
+            user-select: none;
+        }
+
+        .option-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        /* Quick Copy Box */
+        .quick-copy-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 22px;
+        }
+
+        .quick-copy-box {
+            background: rgba(0, 210, 255, 0.04);
+            border: 1px solid rgba(0, 210, 255, 0.15);
+            padding: 8px 18px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .quick-copy-box:hover {
+            background: rgba(0, 210, 255, 0.08);
+            border-color: var(--accent);
+        }
+
+        .quick-copy-box .label {
+            color: var(--text-dim);
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .quick-copy-box code {
+            font-family: var(--font-mono);
+            color: var(--accent);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Drop Area */
+        .drop-area {
+            border: 1.5px dashed var(--card-border);
+            background: rgba(255, 255, 255, 0.015);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            transition: var(--transition);
+            cursor: pointer;
+            margin-bottom: 22px;
+        }
+
+        .drop-area:hover,
+        .drop-area.drag-over {
+            border-color: var(--primary);
+            background: rgba(88, 101, 242, 0.04);
+            color: var(--text-main);
+        }
+
+        /* Logs List */
+        .logs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .log-item {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--card-border);
+            padding: 14px 18px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            transition: var(--transition);
+        }
+
+        .log-item:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .log-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .log-user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid var(--card-border);
+        }
+
+        .log-texts {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .log-time {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .log-details {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.88rem;
+        }
+
+        /* Staff Cards in Settings */
+        .staff-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .staff-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--card-border);
+            padding: 12px 14px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .staff-avatar-initial {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: rgba(88, 101, 242, 0.15);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .staff-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .staff-name {
+            font-weight: 600;
+            font-size: 0.86rem;
+            color: var(--text-main);
+        }
+
+        .staff-id {
+            font-family: var(--font-mono);
+            font-size: 0.74rem;
+            color: var(--text-dim);
+        }
+
+        /* Color Splash & Presets specific CSS */
+        .color-splash-container {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .canvas-wrapper {
+            width: 100%;
+            max-height: 460px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 14px;
+            overflow: hidden;
+            position: relative;
+            min-height: 220px;
+            border: 1px solid var(--card-border);
+        }
+
+        canvas#csCanvas {
+            max-width: 100%;
+            max-height: 460px;
+            object-fit: contain;
+            cursor: crosshair;
+        }
+
+        .color-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+        }
+
+        .color-preview {
+            width: 100%;
+            height: 36px;
+            border-radius: 6px;
+            border: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+            font-size: 0.85rem;
+        }
+
+        /* Presets HUD */
+        .preset-step {
+            transition: var(--transition);
+        }
+
+        .preset-step.completed-step {
+            border-color: var(--success) !important;
+            color: var(--success) !important;
+        }
+
+        .preset-step.active-step {
+            border-color: var(--primary) !important;
+            color: var(--primary) !important;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 16px;
+            animation: fadeInModal 0.2s ease-out;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeInModal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: #10131a;
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            width: 100%;
+            max-width: 620px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            animation: scaleModal 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        body.light-mode .modal-content {
+            background: #ffffff;
+            color: #181a20;
+        }
+
+        @keyframes scaleModal {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.15rem;
+            font-family: var(--font-heading);
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .modal-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+        .modal-close-btn:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            padding: 20px 22px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 14px 22px;
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Archive Items in Modal */
+        .archive-search-box {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            color: white;
+            font-family: var(--font-mono);
+            font-size: 0.88rem;
+            margin-bottom: 14px;
+            outline: none;
+        }
+
+        .archive-items-table {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 380px;
+            overflow-y: auto;
+        }
+
+        .archive-row {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            padding: 9px 12px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .archive-row:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .archive-row-id {
+            font-family: var(--font-mono);
+            font-weight: 500;
+            color: var(--accent);
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .archive-row-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.76rem;
+            color: var(--text-dim);
+        }
+
+        .archive-delete-btn {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid rgba(255, 71, 87, 0.25);
+            color: var(--danger);
+            padding: 3px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.72rem;
+            transition: var(--transition);
+        }
+
+        .archive-delete-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 3000;
+        }
+
+        .toast {
+            background: #141720;
+            border: 1px solid var(--card-border);
+            border-left: 3px solid var(--primary);
+            padding: 12px 18px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            animation: slideInToast 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            opacity: 1;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            max-width: 360px;
+            font-size: 0.88rem;
+        }
+
+        .toast.hide {
+            opacity: 0;
+            transform: translateX(120%);
+        }
+
+        @keyframes slideInToast {
+            from { transform: translateX(120%); }
+            to { transform: translateX(0); }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .brand-section {
+                justify-content: space-between;
+            }
+            .auth-widget {
+                justify-content: flex-end;
+            }
+            .btn-group {
+                flex-direction: column;
+            }
+            .btn-group button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ambient-blur blur-1"></div>
+    <div class="ambient-blur blur-2"></div>
+
+    <!-- TOP BAR -->
+    <header class="top-bar">
+        <div class="brand-section">
+            <div class="brand-logo">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <div>
+                <div class="brand-title">DISCORD ID PRO</div>
+                <div class="brand-sub">
+                    <span class="status-dot" id="serverStatusDot"></span>
+                    <span id="serverStatusText">Verifica connessione...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-widget" id="authWidgetContainer">
+            <!-- Populated dynamically via JS -->
+            <button class="btn-discord-login" id="loginDiscordBtn" onclick="loginDiscord()">
+                <svg width="18" height="18" viewBox="0 0 127.14 96.36" fill="currentColor">
+                    <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                </svg>
+                <span>Accedi con Discord</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- NAVIGATION TABS -->
+    <nav class="nav-container">
+        <button class="nav-item active" onclick="switchPage('standard')">Standard</button>
+        <button class="nav-item" id="nav-level30" onclick="switchPage('level30')">
+            Level 30 <span id="historyCountBadge" class="badge">0</span>
+            <svg id="nav-lock-level30" class="nav-lock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </button>
+        <button class="nav-item" onclick="switchPage('colorsplash')">Color Splash</button>
+        <button class="nav-item" onclick="switchPage('presets')">Presets</button>
+        <button class="nav-item" id="nav-logs" onclick="switchPage('logs')">
+            Logs
+            <svg id="nav-lock-logs" class="nav-lock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </button>
+        <button class="nav-item" id="nav-settings" onclick="switchPage('settings')">
+            Settings
+            <svg id="nav-lock-settings" class="nav-lock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </button>
+        <button class="nav-item" id="themeToggle" onclick="toggleTheme()" title="Cambia Tema" style="margin-left: auto;">☀️</button>
+    </nav>
+
+    <!-- MAIN CONTAINER -->
+    <main class="container">
+
+        <!-- PAGE: STANDARD -->
+        <div id="page-standard" class="page active">
+            <h1>Standard IDs</h1>
+            <p class="subtitle">Pulisci, ordina e filtra le tue liste di Discord ID con facilità.</p>
+
+            <div class="quick-copy-container">
+                <div class="quick-copy-box" onclick="copiaComandoRole()">
+                    <span class="label">Quick Command</span>
+                    <code>*role all -&lt;@&amp;951456227253170199&gt;</code>
+                    <span class="label" style="margin-left: 6px; font-weight: 600;">Copia</span>
+                </div>
+            </div>
+
+            <div class="drop-area" id="dropArea">
+                Trascina qui un file .txt o .csv, oppure clicca per selezionarlo
+            </div>
+
+            <div class="field-group">
+                <label>Input IDs</label>
+                <div class="textarea-wrapper">
+                    <textarea id="idInput" placeholder="Incolla Discord ID (uno per riga o separati da virgola)..." style="height: 180px;"></textarea>
+                    <button class="btn-clear" onclick="clearTextarea('idInput')" title="Cancella">×</button>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label>IDs da Escludere</label>
+                <div class="textarea-wrapper">
+                    <textarea id="excludeInput" placeholder="Questi ID verranno rimossi dal risultato finale..." style="height: 80px;"></textarea>
+                    <button class="btn-clear" onclick="clearTextarea('excludeInput')" title="Cancella">×</button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span id="count" class="stat-value">0</span>
+                    <span class="stat-label">Validi</span>
+                </div>
+                <div class="stat-card">
+                    <span id="duplicates" class="stat-value">0</span>
+                    <span class="stat-label">Duplicati</span>
+                </div>
+            </div>
+
+            <div class="options-row">
+                <label class="option-item" style="flex: 1; min-width: 140px;">
+                    <input type="text" id="customPrefix" placeholder="Prefisso (es. /ban )"
+                        style="width:100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: rgba(0,0,0,0.25); color: var(--text-main); font-family: var(--font-main);">
+                </label>
+                <label class="option-item" style="flex: 1; min-width: 140px;">
+                    <input type="text" id="customSuffix" placeholder="Suffisso"
+                        style="width:100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: rgba(0,0,0,0.25); color: var(--text-main); font-family: var(--font-main);">
+                </label>
+            </div>
+            <div class="options-row">
+                <label class="option-item"><input type="checkbox" id="sortDesc"> Ordine Decrescente</label>
+                <label class="option-item"><input type="checkbox" id="newlineOutput"> Un ID per riga</label>
+                <label class="option-item"><input type="checkbox" id="top5Output" onchange="handleExclusiveCheckboxes(this)"> Top5</label>
+                <label class="option-item"><input type="checkbox" id="ladderOutput" onchange="handleExclusiveCheckboxes(this)"> Ladder</label>
+                <label class="option-item"><input type="checkbox" id="victoryLadderOutput" onchange="handleExclusiveCheckboxes(this)"> Victory Ladder</label>
+                <label class="option-item"><input type="checkbox" id="solosClosedOutput" onchange="handleExclusiveCheckboxes(this)"> Solos Closed</label>
+                <label class="option-item"><input type="checkbox" id="mentionOutput" onchange="handleExclusiveCheckboxes(this)"> Mention</label>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="riordinaID()">Elabora Lista</button>
+                <button class="btn btn-secondary" onclick="copiaRisultato('output')">Copia Risultato</button>
+                <button class="btn btn-secondary" onclick="scaricaTXT()">Scarica TXT</button>
+                <button class="btn btn-danger" onclick="resettaStandard()">Cancella Tutto</button>
+            </div>
+
+            <div class="output-container" id="outputSection" style="display: none;">
+                <div class="output-header">
+                    <span style="font-weight: 600; color: var(--text-dim); font-size: 0.88rem;">Risultato Elaborato</span>
+                </div>
+                <div id="output" class="output-box"></div>
+            </div>
+        </div>
+
+        <!-- PAGE: LEVEL 30 -->
+        <div id="page-level30" class="page">
+            <div class="cloud-banner">
+                <div class="cloud-banner-info">
+                    <div>
+                        <strong>Archivio Cloud Condiviso</strong> — Gli ID aggiunti qui vengono sincronizzati automaticamente nel database server in tempo reale.
+                    </div>
+                </div>
+                <button class="btn btn-accent" style="min-width: 170px; padding: 7px 16px; font-size: 0.84rem;" onclick="openArchiveViewerModal()">
+                    Consulta Archivio (<span id="btnArchiveTotalCount">0</span>)
+                </button>
+            </div>
+
+            <h1>Level 30 Filter</h1>
+            <p class="subtitle">Filtra ed esclude automaticamente gli ID già presenti nell'archivio condiviso.</p>
+
+            <div class="quick-copy-container">
+                <div class="quick-copy-box" onclick="copiaComandoRole()">
+                    <span class="label">Quick Command</span>
+                    <code>*role all -&lt;@&amp;951456227253170199&gt;</code>
+                    <span class="label" style="margin-left: 6px; font-weight: 600;">Copia</span>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label>Incolla Nuovi ID</label>
+                <div class="textarea-wrapper">
+                    <textarea id="idInput30" placeholder="Incolla nuovi ID da filtrare e archiviare..." style="height: 180px;"></textarea>
+                    <button class="btn-clear" onclick="clearTextarea('idInput30')" title="Cancella">×</button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span id="count30" class="stat-value">0</span>
+                    <span class="stat-label">Nuovi Rilevati</span>
+                </div>
+                <div class="stat-card">
+                    <span id="historyRemoved30" class="stat-value" style="color: var(--warning);">0</span>
+                    <span class="stat-label">Già in Archivio</span>
+                </div>
+                <div class="stat-card">
+                    <span id="historyTotal30" class="stat-value" style="color: var(--accent);">0</span>
+                    <span class="stat-label">Totale Archivio Cloud</span>
+                </div>
+            </div>
+
+            <div class="options-row">
+                <label class="option-item"><input type="checkbox" id="sortDesc30"> Ordine Decrescente</label>
+                <label class="option-item"><input type="checkbox" id="newlineOutput30" checked> Un ID per riga</label>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="elaboraLevel30()">Filtra & Archivia</button>
+                <button class="btn btn-secondary" onclick="copiaRisultato('output30')">Copia Nuovi</button>
+                <button class="btn btn-secondary" onclick="resetta30()">Pulisci Box</button>
+            </div>
+
+            <div class="output-container" id="outputSection30" style="display: none;">
+                <div class="output-header">
+                    <span style="font-weight: 600; color: var(--success); font-size: 0.88rem;">Nuovi ID Filtrati & Archiviati</span>
+                </div>
+                <div id="output30" class="output-box" style="border-color: rgba(46, 204, 113, 0.35);"></div>
+            </div>
+
+            <div class="output-container" id="excludedSection30" style="display: none; margin-top: 16px;">
+                <div class="output-header">
+                    <span style="font-weight: 600; color: var(--warning); font-size: 0.88rem;">ID Già Presenti nell'Archivio (Esclusi)</span>
+                </div>
+                <div id="excludedOutput30" class="output-box" style="border-color: rgba(255, 165, 2, 0.35);"></div>
+            </div>
+        </div>
+
+        <!-- PAGE: COLOR SPLASH -->
+        <div id="page-colorsplash" class="page">
+            <h1>Color Splash</h1>
+            <p class="subtitle">Sostituisci colori specifici nelle tue immagini.</p>
+
+            <div class="color-splash-container">
+                <div class="drop-area" id="csDropArea">
+                    Trascina un'immagine qui, o clicca per caricarla
+                    <input type="file" id="csFileInput" accept="image/*" hidden>
+                </div>
+
+                <div class="canvas-wrapper">
+                    <div id="emptyCanvasMsg" style="color: var(--text-dim); font-size: 0.9rem;">Nessuna immagine caricata</div>
+                    <canvas id="csCanvas"></canvas>
+                </div>
+
+                <div class="color-controls">
+                    <div class="color-picker-group">
+                        <label>Colore Target (Clicca sull'immagine)</label>
+                        <div id="csSourcePreview" class="color-preview" style="background-color: #000000;">#000000</div>
+                    </div>
+                    <div class="color-picker-group">
+                        <label>Colore Sostitutivo</label>
+                        <input type="color" id="csReplaceColor" value="#5865F2" style="width: 100%; height: 36px; border: 1px solid var(--card-border); border-radius: 6px; cursor: pointer;">
+                    </div>
+                    <div class="slider-group">
+                        <label>Tolleranza: <span id="csToleranceValue">50</span></label>
+                        <input type="range" id="csTolerance" min="0" max="255" value="50" style="width: 100%; accent-color: var(--primary);">
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="applyColorSplash()">Applica Modifiche</button>
+                    <button class="btn btn-secondary" onclick="resetColorSplashImage()">Ripristina</button>
+                    <button class="btn btn-secondary" onclick="downloadColorSplash()">Scarica</button>
+                    <button class="btn btn-danger" onclick="clearColorSplash()">Rimuovi</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE: PRESETS -->
+        <div id="page-presets" class="page">
+            <h1>Game Presets</h1>
+            <p class="subtitle">Invia e copia rapidamente i messaggi prestabiliti per i match quotidiani.</p>
+
+            <!-- Progress Tracker -->
+            <div style="display: flex; justify-content: space-between; margin-bottom: 26px; position: relative;">
+                <div style="position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: var(--card-border); z-index: 1;"></div>
+                <div id="presetProgressBar" style="position: absolute; top: 50%; left: 0; width: 0%; height: 2px; background: var(--primary); z-index: 1; transition: all 0.5s ease; box-shadow: 0 0 8px var(--primary-glow);"></div>
+
+                <!-- Steps -->
+                <div class="preset-step" id="step-0" style="z-index: 2; background: var(--bg-dark); color: var(--primary); font-weight: bold; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary); font-size: 0.85rem;">1</div>
+                <div class="preset-step" id="step-1" style="z-index: 2; background: var(--bg-dark); color: var(--text-dim); font-weight: bold; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card-border); font-size: 0.85rem;">2</div>
+                <div class="preset-step" id="step-2" style="z-index: 2; background: var(--bg-dark); color: var(--text-dim); font-weight: bold; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card-border); font-size: 0.85rem;">3</div>
+                <div class="preset-step" id="step-3" style="z-index: 2; background: var(--bg-dark); color: var(--text-dim); font-weight: bold; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card-border); font-size: 0.85rem;">4</div>
+                <div class="preset-step" id="step-4" style="z-index: 2; background: var(--bg-dark); color: var(--text-dim); font-weight: bold; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card-border); font-size: 0.85rem;">5</div>
+                <div class="preset-step" id="step-5" style="z-index: 2; background: var(--bg-dark); color: var(--text-dim); font-weight: bold; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card-border); font-size: 0.85rem;">6</div>
+            </div>
+
+            <div class="field-group">
+                <label>Seleziona Match / Preset</label>
+                <select id="presetSelect" style="width: 100%; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--card-border); background: rgba(0,0,0,0.25); color: var(--text-main); font-family: var(--font-main); font-size: 0.9rem; outline: none;">
+                    <option value="0">Seleziona un Preset o Inizia dal Game 1...</option>
+                    <option value="1">Game 1 - Yunite Client Reminder</option>
+                    <option value="2">Game 2 - Scrims Champion Event</option>
+                    <option value="3">Game 3 - Patreon Division 3 Access</option>
+                    <option value="4">Game 4 - Invite Friends EU Scrims</option>
+                    <option value="5">Game 5 - Solos Stacked Sessions</option>
+                    <option value="6">Game 6 - Noble Division 0 Dropmaps</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="btnNextPreset" onclick="getNextPreset()">Inizia Hosting (Game 1)</button>
+                <button class="btn btn-secondary" onclick="resetPresets()">Azzera Sequenza</button>
+            </div>
+
+            <div class="output-container" id="presetOutputSection" style="display: none;">
+                <div class="output-header">
+                    <span style="font-weight: 600; color: var(--text-dim); font-size: 0.88rem;">Testo Preset Copiato</span>
+                </div>
+                <div id="presetOutput" class="output-box"></div>
+            </div>
+
+            <div style="margin-top: 36px; border-top: 1px solid var(--card-border); padding-top: 22px;">
+                <h3 style="font-size: 1rem; margin-bottom: 14px; color: var(--text-dim);">Messaggi Rapidi Generali</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+                    <div class="quick-copy-box" onclick="copyGeneralPreset(0)" style="width: 100%; justify-content: center;">
+                        <span class="label">First Match Alert</span>
+                    </div>
+                    <div class="quick-copy-box" onclick="copyGeneralPreset(1)" style="width: 100%; justify-content: center;">
+                        <span class="label">Scrims Concluded</span>
+                    </div>
+                    <div class="quick-copy-box" onclick="copyGeneralPreset(2)" style="width: 100%; justify-content: center;">
+                        <span class="label">Game Cancelled</span>
+                    </div>
+                    <div class="quick-copy-box" onclick="copyGeneralPreset(3)" style="width: 100%; justify-content: center;">
+                        <span class="label">Looking for Host</span>
+                    </div>
+                    <div class="quick-copy-box" onclick="copyGeneralPreset(4)" style="width: 100%; justify-content: center;">
+                        <span class="label">Sign-up Dispatch</span>
+                    </div>
+                    <div class="quick-copy-box" onclick="copyGeneralPreset(5)" style="width: 100%; justify-content: center;">
+                        <span class="label">Scrim Rules</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE: LOGS -->
+        <div id="page-logs" class="page">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                <div>
+                    <h1>Audit Logs</h1>
+                    <p class="subtitle" style="margin-bottom: 0;">Cronologia centralizzata delle elaborazioni e aggiunte di ID.</p>
+                </div>
+                <button class="btn btn-secondary" style="flex: none; min-width: 110px; padding: 7px 14px; font-size: 0.85rem;" onclick="loadSharedLogs()">
+                    Aggiorna
+                </button>
+            </div>
+
+            <div id="logsContainer" class="logs-list">
+                <div style="text-align: center; color: var(--text-dim); padding: 26px;">
+                    Caricamento log dal server...
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE: SETTINGS -->
+        <div id="page-settings" class="page">
+            <h1>Impostazioni & Staff</h1>
+            <p class="subtitle">Gestione dei permessi di accesso, backup e archivio centrale.</p>
+
+            <!-- Staff Permissions -->
+            <div style="background: rgba(88, 101, 242, 0.04); border: 1px solid rgba(88, 101, 242, 0.16); padding: 18px; border-radius: 14px; margin-bottom: 24px;">
+                <h3 style="font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">
+                    Staff Autorizzato
+                </h3>
+                <p style="font-size: 0.84rem; color: var(--text-dim); margin-bottom: 12px;">
+                    Solo il Creatore e gli Admin elencati hanno accesso a Level 30, Logs e Settings:
+                </p>
+                <div class="staff-grid">
+                    <div class="staff-card" style="border-color: rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.03);">
+                        <div class="staff-avatar-initial" style="background: rgba(255, 215, 0, 0.15); color: #ffd700;">👑</div>
+                        <div class="staff-info">
+                            <span class="staff-name" style="color: #ffd700;">Creatore</span>
+                            <span class="staff-id">459683716634247172</span>
+                        </div>
+                    </div>
+                    <div class="staff-card">
+                        <div class="staff-avatar-initial">A1</div>
+                        <div class="staff-info">
+                            <span class="staff-name">Admin 1</span>
+                            <span class="staff-id">817378206520836156</span>
+                        </div>
+                    </div>
+                    <div class="staff-card">
+                        <div class="staff-avatar-initial">A2</div>
+                        <div class="staff-info">
+                            <span class="staff-name">Admin 2</span>
+                            <span class="staff-id">422345185415135232</span>
+                        </div>
+                    </div>
+                    <div class="staff-card">
+                        <div class="staff-avatar-initial">A3</div>
+                        <div class="staff-info">
+                            <span class="staff-name">Admin 3</span>
+                            <span class="staff-id">510792663210131456</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Central Cloud Backup -->
+            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); padding: 18px; border-radius: 14px; margin-bottom: 24px;">
+                <h3 style="font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">
+                    Backup & Ripristino
+                </h3>
+                <p style="font-size: 0.84rem; color: var(--text-dim); margin-bottom: 14px;">
+                    Scarica una copia completa del database o importa nuovi ID nell'archivio.
+                </p>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="exportData()">Esporta Backup (.json)</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">Importa Database</button>
+                    <input type="file" id="importFile" hidden accept=".json,.txt" onchange="importData(event)">
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div style="padding: 18px; border-radius: 14px; background: rgba(255, 71, 87, 0.04); border: 1px solid rgba(255, 71, 87, 0.18);">
+                <label style="color: var(--danger); font-size: 0.92rem;">Zona Pericolosa</label>
+                <p style="font-size: 0.82rem; color: var(--text-dim); margin-bottom: 14px;">
+                    Questa azione svuoterà l'archivio Level 30 memorizzato sul server per tutti gli utenti.
+                </p>
+                <button class="btn btn-danger" style="flex: none; min-width: 200px;" onclick="pulisciArchivioGlobale()">
+                    Svuota Archivio Globale
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL: ACCESS RESTRICTED -->
+    <div class="modal-overlay" id="accessDeniedModal">
+        <div class="modal-content" style="max-width: 440px; text-align: center;">
+            <div class="modal-header" style="justify-content: center; border-bottom: none; padding-top: 26px;">
+                <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(255, 71, 87, 0.12); display: flex; align-items: center; justify-content: center; color: var(--danger); margin: 0 auto;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+            </div>
+            <div class="modal-body" style="padding-top: 6px;">
+                <h3 style="font-size: 1.25rem; color: var(--text-main); margin-bottom: 10px; font-family: var(--font-heading);">
+                    Accesso Riservato allo Staff
+                </h3>
+                <p style="font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 18px;">
+                    Questa sezione è protetta ed accessibile solo agli account Discord autorizzati:
+                </p>
+                <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); border-radius: 10px; padding: 12px; margin-bottom: 20px; text-align: left; font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent); line-height: 1.7;">
+                    <div>Creatore: 459683716634247172</div>
+                    <div>Admin 1: 817378206520836156</div>
+                    <div>Admin 2: 422345185415135232</div>
+                    <div>Admin 3: 510792663210131456</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <button class="btn btn-primary" onclick="loginDiscord()" style="width: 100%;">
+                        Accedi con Discord
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeAccessDeniedModal()" style="width: 100%;">
+                        Chiudi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SHARED ARCHIVE VIEWER -->
+    <div class="modal-overlay" id="archiveViewerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Archivio Level 30</h3>
+                <button class="modal-close-btn" onclick="closeArchiveViewerModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="archive-search-box" id="archiveSearchInput" placeholder="Cerca ID Discord nell'archivio..." oninput="filterArchiveList()">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.82rem; color: var(--text-dim);">
+                    <span id="archiveFilteredCount">Visualizzati 0 ID</span>
+                    <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 0.76rem; min-width: auto;" onclick="copiaTuttoArchivio()">
+                        Copia Tutti gli ID
+                    </button>
+                </div>
+
+                <div class="archive-items-table" id="archiveItemsList">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeArchiveViewerModal()">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script>
+        /* --- GLOBAL APPLICATION STATE --- */
+        const CREATOR_ID = "459683716634247172";
+        const ADMIN_IDS = ["817378206520836156", "422345185415135232", "510792663210131456"];
+        const AUTHORIZED_IDS = new Set([CREATOR_ID, ...ADMIN_IDS]);
+
+        let currentUser = null;
+        let isServerConnected = false;
+        let sharedArchiveSet = new Set();
+        let sharedArchiveItems = [];
+        let sharedLogs = [];
+        let sseEventSource = null;
+
+        let state = {
+            activePage: 'standard'
+        };
+
+        const toastContainer = document.getElementById('toast-container');
+        const historyBadge = document.getElementById('historyCountBadge');
+
+        /* --- AUTH & PERMISSIONS --- */
+        async function checkAuthStatus() {
+            try {
+                const res = await fetch('/api/auth/status');
+                if (!res.ok) throw new Error("Server status check failed");
+                const data = await res.json();
+                isServerConnected = true;
+                updateServerStatus(true);
+
+                if (data.currentUser) {
+                    currentUser = data.currentUser;
+                } else {
+                    currentUser = null;
+                }
+            } catch (err) {
+                console.warn("[Cloud] Server offline, fallback locale:", err);
+                isServerConnected = false;
+                updateServerStatus(false);
+                currentUser = null;
+            }
+
+            renderAuthWidget();
+            updateNavigationLocks();
+            await syncSharedArchive();
+        }
+
+        function updateServerStatus(online) {
+            const dot = document.getElementById('serverStatusDot');
+            const text = document.getElementById('serverStatusText');
+            if (online) {
+                dot.style.backgroundColor = 'var(--success)';
+                dot.style.boxShadow = '0 0 6px var(--success)';
+                text.textContent = 'Cloud Sync Connesso';
+            } else {
+                dot.style.backgroundColor = 'var(--warning)';
+                dot.style.boxShadow = '0 0 6px var(--warning)';
+                text.textContent = 'Modalità Locale (Offline)';
+            }
+        }
+
+        function renderAuthWidget() {
+            const container = document.getElementById('authWidgetContainer');
+            if (!container) return;
+
+            if (currentUser) {
+                const isCreator = currentUser.id === CREATOR_ID;
+                const isAdmin = ADMIN_IDS.includes(currentUser.id);
+                const roleClass = isCreator ? 'role-creator' : (isAdmin ? 'role-admin' : 'role-guest');
+                const roleLabel = isCreator ? 'Creatore 👑' : (isAdmin ? 'Admin' : 'Ospite');
+
+                container.innerHTML = `
+                    <div class="user-card">
+                        <div class="user-avatar-wrap">
+                            <img src="${currentUser.avatarUrl || 'https://cdn.discordapp.com/embed/avatars/0.png'}" class="user-avatar" alt="Avatar">
+                            <div class="user-avatar-badge"></div>
+                        </div>
+                        <div class="user-details">
+                            <span class="user-name" title="${currentUser.username}">${currentUser.global_name || currentUser.username}</span>
+                            <span class="role-badge ${roleClass}">${roleLabel}</span>
+                        </div>
+                    </div>
+                    <button class="btn-auth-action" onclick="logoutDiscord()" title="Disconnetti">Esci</button>
+                `;
+            } else {
+                container.innerHTML = `
+                    <button class="btn-discord-login" onclick="loginDiscord()">
+                        <svg width="18" height="18" viewBox="0 0 127.14 96.36" fill="currentColor">
+                            <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                        </svg>
+                        <span>Accedi con Discord</span>
+                    </button>
+                `;
+            }
+        }
+
+        function updateNavigationLocks() {
+            const hasAccess = currentUser && currentUser.canAccessAdmin;
+            const protectedTabs = ['level30', 'logs', 'settings'];
+
+            protectedTabs.forEach(id => {
+                const btn = document.getElementById(`nav-${id}`);
+                const lockBadge = document.getElementById(`nav-lock-${id}`);
+                if (btn) {
+                    if (hasAccess) {
+                        btn.classList.remove('locked');
+                        if (lockBadge) lockBadge.style.display = 'none';
+                    } else {
+                        btn.classList.add('locked');
+                        if (lockBadge) lockBadge.style.display = 'inline-block';
+                    }
+                }
+            });
+
+            if (!hasAccess && protectedTabs.includes(state.activePage)) {
+                switchPage('standard', true);
+            }
+        }
+
+        function loginDiscord() {
+            window.location.href = '/api/auth/discord';
+        }
+
+        async function logoutDiscord() {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+            } catch (e) {}
+            currentUser = null;
+            showToast("Disconnesso con successo", "success");
+            renderAuthWidget();
+            updateNavigationLocks();
+        }
+
+        function showAccessDeniedModal(targetPage) {
+            document.getElementById('accessDeniedModal').classList.add('active');
+        }
+
+        function closeAccessDeniedModal() {
+            document.getElementById('accessDeniedModal').classList.remove('active');
+        }
+
+        /* --- LEVEL 30 ARCHIVE --- */
+        async function syncSharedArchive() {
+            if (isServerConnected) {
+                try {
+                    const res = await fetch('/api/level30');
+                    if (res.ok) {
+                        const data = await res.json();
+                        sharedArchiveSet = new Set(data.ids || []);
+                        sharedArchiveItems = data.items || [];
+                        updateLevel30Stats();
+                        return;
+                    }
+                } catch (e) {
+                    console.error("[Sync] Errore:", e);
+                }
+            }
+
+            try {
+                const localIds = JSON.parse(localStorage.getItem('level30_history') || '[]');
+                sharedArchiveSet = new Set(localIds);
+                updateLevel30Stats();
+            } catch (e) {
+                sharedArchiveSet = new Set();
+            }
+        }
+
+        function updateLevel30Stats() {
+            const count = sharedArchiveSet.size;
+            document.getElementById('historyTotal30').textContent = count;
+            document.getElementById('btnArchiveTotalCount').textContent = count;
+            historyBadge.textContent = count;
+        }
+
+        function getLevel30History() {
+            return Array.from(sharedArchiveSet);
+        }
+
+        async function elaboraLevel30() {
+            if (!currentUser || !currentUser.canAccessAdmin) {
+                showAccessDeniedModal('level30');
+                return;
+            }
+
+            const input = document.getElementById('idInput30').value;
+            const ids = input.split(/[\s,]+/).map(id => id.trim()).filter(id => /^\d{16,21}$/.test(id));
+
+            if (ids.length === 0) {
+                showToast("Inserisci almeno un Discord ID valido (16-21 cifre)", "warning");
+                return;
+            }
+
+            const uniciInput = [...new Set(ids)];
+            const giaVisti = uniciInput.filter(id => sharedArchiveSet.has(id));
+            const nuovi = uniciInput.filter(id => !sharedArchiveSet.has(id));
+
+            if (document.getElementById('sortDesc30').checked) {
+                nuovi.sort((a, b) => b - a);
+            }
+
+            const outputBox = document.getElementById('output30');
+            const outputSection = document.getElementById('outputSection30');
+            const excludedBox = document.getElementById('excludedOutput30');
+            const excludedSection = document.getElementById('excludedSection30');
+
+            outputBox.textContent = document.getElementById('newlineOutput30').checked ? nuovi.join('\n') : nuovi.join(' ');
+            outputSection.style.display = nuovi.length > 0 ? 'block' : 'none';
+
+            if (giaVisti.length > 0) {
+                excludedBox.textContent = document.getElementById('newlineOutput30').checked ? giaVisti.join('\n') : giaVisti.join(' ');
+                excludedSection.style.display = 'block';
+            } else {
+                excludedSection.style.display = 'none';
+            }
+
+            document.getElementById('count30').textContent = nuovi.length;
+            document.getElementById('historyRemoved30').textContent = giaVisti.length;
+
+            if (nuovi.length > 0) {
+                if (isServerConnected) {
+                    try {
+                        const res = await fetch('/api/level30/add', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ ids: nuovi })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            nuovi.forEach(id => sharedArchiveSet.add(id));
+                            updateLevel30Stats();
+                            showToast(`Archiviati ${nuovi.length} nuovi ID nel database`, "success");
+                            loadSharedLogs();
+                        } else {
+                            throw new Error(data.error);
+                        }
+                    } catch (err) {
+                        showToast("Errore salvataggio server: " + err.message, "danger");
+                    }
+                } else {
+                    nuovi.forEach(id => sharedArchiveSet.add(id));
+                    localStorage.setItem('level30_history', JSON.stringify(Array.from(sharedArchiveSet)));
+                    updateLevel30Stats();
+                    showToast(`Filtrati ${nuovi.length} nuovi ID (salvati in locale)`, "warning");
+                }
+            } else {
+                showToast("Tutti gli ID inseriti sono già presenti nell'archivio.", "warning");
+            }
+        }
+
+        /* --- ARCHIVE VIEWER MODAL --- */
+        async function openArchiveViewerModal() {
+            if (!currentUser || !currentUser.canAccessAdmin) {
+                showAccessDeniedModal('level30');
+                return;
+            }
+
+            await syncSharedArchive();
+            renderArchiveList();
+            document.getElementById('archiveViewerModal').classList.add('active');
+        }
+
+        function closeArchiveViewerModal() {
+            document.getElementById('archiveViewerModal').classList.remove('active');
+        }
+
+        function renderArchiveList() {
+            const listContainer = document.getElementById('archiveItemsList');
+            const searchVal = (document.getElementById('archiveSearchInput').value || '').trim();
+            const allIds = Array.from(sharedArchiveSet);
+
+            const filtered = searchVal ? allIds.filter(id => id.includes(searchVal)) : allIds;
+
+            document.getElementById('archiveFilteredCount').textContent = `Visualizzati ${filtered.length} di ${allIds.length} ID`;
+
+            if (filtered.length === 0) {
+                listContainer.innerHTML = '<div style="text-align: center; color: var(--text-dim); padding: 24px;">Nessun ID trovato.</div>';
+                return;
+            }
+
+            const itemMap = new Map();
+            sharedArchiveItems.forEach(item => {
+                if (item && item.id) itemMap.set(item.id, item);
+            });
+
+            listContainer.innerHTML = filtered.slice(0, 300).map(id => {
+                const meta = itemMap.get(id);
+                const addedByStr = meta && meta.addedBy ? meta.addedBy.username : 'Staff';
+                const dateStr = meta && meta.addedAt ? new Date(meta.addedAt).toLocaleDateString() : '';
+
+                return `
+                    <div class="archive-row">
+                        <div class="archive-row-id">
+                            <span>${id}</span>
+                            <button class="btn btn-secondary" style="padding: 2px 8px; font-size: 0.72rem; min-width: auto;" onclick="copiaID('${id}')">Copia</button>
+                        </div>
+                        <div class="archive-row-meta">
+                            <span>${addedByStr}</span>
+                            ${dateStr ? `<span>${dateStr}</span>` : ''}
+                            <button class="archive-delete-btn" onclick="cancellaIDArchivio('${id}')">Elimina</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterArchiveList() {
+            renderArchiveList();
+        }
+
+        function copiaID(id) {
+            navigator.clipboard.writeText(id).then(() => {
+                showToast(`ID ${id} copiato!`);
+            });
+        }
+
+        function copiaTuttoArchivio() {
+            const allIds = Array.from(sharedArchiveSet).join('\n');
+            if (!allIds) return;
+            navigator.clipboard.writeText(allIds).then(() => {
+                showToast(`Copiati ${sharedArchiveSet.size} ID!`);
+            });
+        }
+
+        async function cancellaIDArchivio(targetId) {
+            if (!confirm(`Rimuovere l'ID ${targetId} dall'archivio condiviso?`)) return;
+
+            if (isServerConnected) {
+                try {
+                    const res = await fetch(`/api/level30/id/${targetId}`, { method: 'DELETE' });
+                    const data = await res.json();
+                    if (data.success) {
+                        sharedArchiveSet.delete(targetId);
+                        updateLevel30Stats();
+                        renderArchiveList();
+                        showToast(`ID ${targetId} rimosso.`);
+                    }
+                } catch (e) {
+                    showToast("Errore eliminazione ID", "danger");
+                }
+            } else {
+                sharedArchiveSet.delete(targetId);
+                localStorage.setItem('level30_history', JSON.stringify(Array.from(sharedArchiveSet)));
+                updateLevel30Stats();
+                renderArchiveList();
+                showToast(`ID ${targetId} rimosso in locale.`);
+            }
+        }
+
+        /* --- SHARED AUDIT LOGS --- */
+        async function loadSharedLogs() {
+            if (!currentUser || !currentUser.canAccessAdmin) return;
+
+            const container = document.getElementById('logsContainer');
+            if (isServerConnected) {
+                try {
+                    const res = await fetch('/api/logs');
+                    if (res.ok) {
+                        const data = await res.json();
+                        sharedLogs = data.logs || [];
+                        renderLogs();
+                        return;
+                    }
+                } catch (e) {
+                    console.error("Errore fetch logs:", e);
+                }
+            }
+
+            sharedLogs = JSON.parse(localStorage.getItem('admin_ids_logs')) || [];
+            renderLogs();
+        }
+
+        function renderLogs() {
+            const container = document.getElementById('logsContainer');
+            if (!container) return;
+
+            if (sharedLogs.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: var(--text-dim); padding: 24px;">Nessun log disponibile.</div>';
+                return;
+            }
+
+            container.innerHTML = sharedLogs.map((log, index) => {
+                const user = log.user || { username: 'Locale', role: 'guest' };
+                const timeStr = log.timestamp ? new Date(log.timestamp).toLocaleString() : (log.time || '');
+
+                return `
+                    <div class="log-item">
+                        <div class="log-info">
+                            <img src="${user.avatarUrl || 'https://cdn.discordapp.com/embed/avatars/0.png'}" class="log-user-avatar" alt="Avatar">
+                            <div class="log-texts">
+                                <span class="log-details">${log.action} (${log.count} ID)</span>
+                                <span class="log-time">${user.username} • ${timeStr}</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" style="min-width: 80px; padding: 5px 12px; font-size: 0.82rem;" onclick="copyLogData(${index}, this)">Copia Output</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function copyLogData(index, btnEl) {
+            const text = sharedLogs[index].output;
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btnEl.textContent;
+                btnEl.textContent = 'Copiato';
+                btnEl.style.background = 'var(--success)';
+                setTimeout(() => {
+                    btnEl.textContent = originalText;
+                    btnEl.style.background = '';
+                }, 2000);
+            });
+        }
+
+        /* --- SETTINGS & BACKUP --- */
+        async function exportData() {
+            if (!currentUser || !currentUser.canAccessAdmin) {
+                showAccessDeniedModal('settings');
+                return;
+            }
+
+            if (isServerConnected) {
+                window.location.href = '/api/backup';
+                showToast("Esportazione backup avviata");
+            } else {
+                const data = {
+                    version: '2.0.0',
+                    date: new Date().toISOString(),
+                    level30_history: Array.from(sharedArchiveSet)
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `backup_discord_ids_${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast("Backup locale esportato");
+            }
+        }
+
+        async function importData(event) {
+            if (!currentUser || !currentUser.canAccessAdmin) {
+                showAccessDeniedModal('settings');
+                return;
+            }
+
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    let parsedData;
+                    if (file.name.endsWith('.txt')) {
+                        const lines = e.target.result.split(/[\s,]+/).map(s => s.trim()).filter(s => /^\d{16,21}$/.test(s));
+                        parsedData = { level30_history: lines };
+                    } else {
+                        parsedData = JSON.parse(e.target.result);
+                    }
+
+                    if (isServerConnected) {
+                        const res = await fetch('/api/backup/import', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ data: parsedData })
+                        });
+                        const resData = await res.json();
+                        if (resData.success) {
+                            showToast(`Importati ${resData.importedCount} ID nel database`, "success");
+                            await syncSharedArchive();
+                        } else {
+                            throw new Error(resData.error);
+                        }
+                    } else {
+                        const list = parsedData.level30_history || [];
+                        list.forEach(id => sharedArchiveSet.add(id));
+                        localStorage.setItem('level30_history', JSON.stringify(Array.from(sharedArchiveSet)));
+                        updateLevel30Stats();
+                        showToast(`Importati ${list.length} ID in locale`, "success");
+                    }
+                } catch (err) {
+                    showToast("Formato file non valido", "danger");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        async function pulisciArchivioGlobale() {
+            if (!currentUser || !currentUser.canAccessAdmin) {
+                showAccessDeniedModal('settings');
+                return;
+            }
+
+            if (!confirm("Attenzione: questa azione cancellerà tutti gli ID dall'archivio per tutti gli utenti. Confermi?")) {
+                return;
+            }
+
+            if (isServerConnected) {
+                try {
+                    const res = await fetch('/api/level30/clear', { method: 'POST' });
+                    const data = await res.json();
+                    if (data.success) {
+                        sharedArchiveSet.clear();
+                        updateLevel30Stats();
+                        showToast("Archivio globale svuotato", "danger");
+                        loadSharedLogs();
+                    }
+                } catch (e) {
+                    showToast("Errore durante lo svuotamento", "danger");
+                }
+            } else {
+                sharedArchiveSet.clear();
+                localStorage.removeItem('level30_history');
+                updateLevel30Stats();
+                showToast("Archivio locale svuotato", "danger");
+            }
+        }
+
+        /* --- REAL-TIME LIVE SYNC --- */
+        function setupLiveSyncSSE() {
+            if (!window.EventSource) return;
+
+            try {
+                if (sseEventSource) sseEventSource.close();
+                sseEventSource = new EventSource('/api/events');
+
+                sseEventSource.addEventListener('archive_updated', (e) => {
+                    const data = JSON.parse(e.data);
+                    if (data.action === 'add' && data.newIds) {
+                        data.newIds.forEach(id => sharedArchiveSet.add(id));
+                        updateLevel30Stats();
+                        if (document.getElementById('archiveViewerModal').classList.contains('active')) {
+                            renderArchiveList();
+                        }
+                        if (currentUser && data.addedBy && data.addedBy.id !== currentUser.id) {
+                            showToast(`${data.addedBy.username} ha aggiunto ${data.addedCount} nuovi ID all'archivio`);
+                        }
+                    } else if (data.action === 'delete') {
+                        sharedArchiveSet.delete(data.deletedId);
+                        updateLevel30Stats();
+                        if (document.getElementById('archiveViewerModal').classList.contains('active')) {
+                            renderArchiveList();
+                        }
+                    } else if (data.action === 'clear') {
+                        sharedArchiveSet.clear();
+                        updateLevel30Stats();
+                        showToast("L'archivio è stato azzerato", "warning");
+                    }
+                });
+
+                sseEventSource.onerror = () => {
+                    sseEventSource.close();
+                    setTimeout(setupLiveSyncSSE, 10000);
+                };
+            } catch (err) {
+                console.warn("[LiveSync] SSE non disponibile:", err);
+            }
+        }
+
+        /* --- NAVIGATION --- */
+        function switchPage(pageId, save = true) {
+            const protectedPages = ['level30', 'logs', 'settings'];
+            if (protectedPages.includes(pageId)) {
+                if (!currentUser || !currentUser.canAccessAdmin) {
+                    showAccessDeniedModal(pageId);
+                    return;
+                }
+            }
+
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+
+            const targetPage = document.getElementById('page-' + pageId);
+            if (targetPage) targetPage.classList.add('active');
+
+            const items = document.querySelectorAll('.nav-item');
+            if (pageId === 'standard') items[0].classList.add('active');
+            if (pageId === 'level30') items[1].classList.add('active');
+            if (pageId === 'colorsplash') items[2].classList.add('active');
+            if (pageId === 'presets') items[3].classList.add('active');
+            if (pageId === 'logs') items[4].classList.add('active');
+            if (pageId === 'settings') items[5].classList.add('active');
+
+            state.activePage = pageId;
+            if (save) saveState();
+
+            if (pageId === 'level30') updateLevel30Stats();
+            if (pageId === 'logs') loadSharedLogs();
+        }
+
+        /* --- STANDARD LOGIC --- */
+        function handleExclusiveCheckboxes(checkbox) {
+            if (checkbox.checked) {
+                const ids = ['top5Output', 'ladderOutput', 'victoryLadderOutput', 'solosClosedOutput', 'mentionOutput'];
+                ids.forEach(id => {
+                    if (id !== checkbox.id) {
+                        const el = document.getElementById(id);
+                        if (el) el.checked = false;
+                    }
+                });
+            }
+            saveState();
+        }
+
+        function parseIDs(text) {
+            const raw = text.split(/[\s,]+/).map(id => id.trim()).filter(id => id.length);
+            const validi = raw.filter(id => /^\d+$/.test(id));
+            const unici = [...new Set(validi)];
+            return { raw, validi, unici, duplicates: validi.length - unici.length };
+        }
+
+        function riordinaID() {
+            const text = document.getElementById('idInput').value;
+            const { unici, duplicates, validi } = parseIDs(text);
+
+            if (validi.length === 0) {
+                showToast("Nessun ID valido inserito", "warning");
+                return;
+            }
+
+            const excluded = parseIDs(document.getElementById('excludeInput').value).unici;
+            let finalList = unici.filter(id => !excluded.includes(id));
+
+            if (document.getElementById('sortDesc').checked) {
+                finalList.sort((a, b) => b - a);
+            }
+
+            const top5Checked = document.getElementById('top5Output').checked;
+            const ladderChecked = document.getElementById('ladderOutput').checked;
+            const victoryLadderChecked = document.getElementById('victoryLadderOutput').checked;
+            const solosClosedChecked = document.getElementById('solosClosedOutput').checked;
+            const mentionChecked = document.getElementById('mentionOutput').checked;
+
+            let separator = document.getElementById('newlineOutput').checked ? '\n' : ' ';
+            let outputText = "";
+
+            const prefix = document.getElementById('customPrefix').value.trim();
+            const suffix = document.getElementById('customSuffix').value.trim();
+
+            if (prefix || suffix) {
+                const pre = prefix ? prefix + " " : "";
+                const suf = suffix ? " " + suffix : "";
+                finalList = finalList.map(id => `${pre}${id}${suf}`);
+            }
+
+            if (top5Checked) {
+                outputText = "$top5 " + finalList.join(separator);
+            } else if (ladderChecked) {
+                const topValue = prompt("What top?");
+                if (topValue === null) return;
+                outputText = "$invite " + finalList.join(separator) + separator + `"Congratulations on placing top ${topValue}!"`;
+            } else if (victoryLadderChecked) {
+                outputText = "$invite " + finalList.join(separator) + separator + '"Congratulations on winning a game of the Duo Victory Ladder!"';
+            } else if (solosClosedChecked) {
+                const topValue = prompt("What top?");
+                if (topValue === null) return;
+                outputText = "$solosinvite " + finalList.join(separator) + separator + `"Congratulations on placing top ${topValue}!"`;
+            } else if (mentionChecked) {
+                outputText = finalList.map(id => `<@${id.replace(/<@|>/g, '')}>`).join(separator);
+            } else {
+                outputText = finalList.join(separator);
+            }
+
+            const output = document.getElementById('output');
+            output.textContent = outputText;
+            document.getElementById('outputSection').style.display = 'block';
+
+            document.getElementById('count').textContent = validi.length;
+            document.getElementById('duplicates').textContent = duplicates;
+
+            showToast("Lista elaborata");
+        }
+
+        function copiaRisultato(elementId) {
+            const text = document.getElementById(elementId).textContent.trim();
+            if (!text) return;
+
+            const btn = event.currentTarget;
+            const originalText = btn.innerHTML;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Copiato negli appunti");
+                btn.innerHTML = "Copiato";
+                btn.style.background = "var(--success)";
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = "";
+                }, 2000);
+            });
+        }
+
+        function scaricaTXT() {
+            const content = document.getElementById('output').textContent.trim();
+            if (!content) return;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'discord_ids.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function resettaStandard() {
+            document.getElementById('idInput').value = '';
+            document.getElementById('excludeInput').value = '';
+            document.getElementById('output').textContent = '';
+            document.getElementById('outputSection').style.display = 'none';
+            document.getElementById('count').textContent = '0';
+            document.getElementById('duplicates').textContent = '0';
+            document.getElementById('top5Output').checked = false;
+            document.getElementById('ladderOutput').checked = false;
+            document.getElementById('victoryLadderOutput').checked = false;
+            document.getElementById('solosClosedOutput').checked = false;
+            document.getElementById('mentionOutput').checked = false;
+        }
+
+        function resetta30() {
+            document.getElementById('idInput30').value = '';
+            document.getElementById('output30').textContent = '';
+            document.getElementById('outputSection30').style.display = 'none';
+
+            const excludedBox = document.getElementById('excludedOutput30');
+            if (excludedBox) excludedBox.textContent = '';
+            const excludedSection = document.getElementById('excludedSection30');
+            if (excludedSection) excludedSection.style.display = 'none';
+
+            document.getElementById('count30').textContent = '0';
+            document.getElementById('historyRemoved30').textContent = '0';
+        }
+
+        function copiaComandoRole() {
+            const el = event.currentTarget;
+            navigator.clipboard.writeText("*role all -<@&951456227253170199>").then(() => {
+                showToast("Comando copiato", "success");
+                el.style.background = 'rgba(46, 204, 113, 0.2)';
+                el.style.borderColor = 'var(--success)';
+                setTimeout(() => {
+                    el.style.background = '';
+                    el.style.borderColor = '';
+                }, 2000);
+            });
+        }
+
+        function clearTextarea(id) {
+            document.getElementById(id).value = '';
+            document.getElementById(id).focus();
+        }
+
+        /* --- THEME TOGGLE --- */
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            document.getElementById('themeToggle').textContent = isLight ? '🌙' : '☀️';
+            localStorage.setItem('admin_ids_theme', isLight ? 'light' : 'dark');
+        }
+
+        /* --- NOTIFICATIONS --- */
+        function showToast(message, type = 'success') {
+            const toastEl = document.createElement('div');
+            toastEl.className = 'toast';
+            if (type === 'danger') toastEl.style.borderLeftColor = 'var(--danger)';
+            else if (type === 'warning') toastEl.style.borderLeftColor = 'var(--warning)';
+
+            toastEl.innerHTML = `<span>${message}</span>`;
+            toastContainer.appendChild(toastEl);
+
+            setTimeout(() => {
+                toastEl.classList.add('hide');
+                setTimeout(() => toastEl.remove(), 250);
+            }, 2800);
+        }
+
+        /* --- COLOR SPLASH LOGIC --- */
+        const csDropArea = document.getElementById('csDropArea');
+        const csFileInput = document.getElementById('csFileInput');
+        const csCanvas = document.getElementById('csCanvas');
+        const csCtx = csCanvas.getContext('2d');
+        const csSourcePreview = document.getElementById('csSourcePreview');
+        const csReplaceColor = document.getElementById('csReplaceColor');
+        const csTolerance = document.getElementById('csTolerance');
+        const csToleranceValue = document.getElementById('csToleranceValue');
+
+        let csOriginalImageData = null;
+        let csCurrentImage = null;
+        let csSourceColor = { r: 0, g: 0, b: 0 };
+
+        if (csTolerance) {
+            csTolerance.addEventListener('input', (e) => {
+                csToleranceValue.textContent = e.target.value;
+            });
+        }
+
+        if (csDropArea) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+                csDropArea.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); });
+            });
+            csDropArea.addEventListener('dragover', () => csDropArea.classList.add('drag-over'));
+            csDropArea.addEventListener('dragleave', () => csDropArea.classList.remove('drag-over'));
+            csDropArea.addEventListener('drop', e => {
+                csDropArea.classList.remove('drag-over');
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) loadColorSplashFile(file);
+            });
+            csDropArea.addEventListener('click', () => csFileInput.click());
+            csFileInput.addEventListener('change', e => {
+                if (e.target.files[0]) loadColorSplashFile(e.target.files[0]);
+            });
+        }
+
+        function loadColorSplashFile(file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    csCanvas.width = img.width;
+                    csCanvas.height = img.height;
+                    csCtx.drawImage(img, 0, 0);
+                    csOriginalImageData = csCtx.getImageData(0, 0, csCanvas.width, csCanvas.height);
+                    csCurrentImage = img;
+                    document.getElementById('emptyCanvasMsg').style.display = 'none';
+                    showToast("Immagine caricata");
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        if (csCanvas) {
+            csCanvas.addEventListener('click', (e) => {
+                if (!csOriginalImageData) return;
+                const rect = csCanvas.getBoundingClientRect();
+                const scaleX = csCanvas.width / rect.width;
+                const scaleY = csCanvas.height / rect.height;
+                const x = Math.floor((e.clientX - rect.left) * scaleX);
+                const y = Math.floor((e.clientY - rect.top) * scaleY);
+
+                const pixelData = csCtx.getImageData(x, y, 1, 1).data;
+                csSourceColor = { r: pixelData[0], g: pixelData[1], b: pixelData[2] };
+
+                const hex = rgbToHex(csSourceColor.r, csSourceColor.g, csSourceColor.b);
+                csSourcePreview.style.backgroundColor = hex;
+                csSourcePreview.textContent = hex.toUpperCase();
+            });
+        }
+
+        function applyColorSplash() {
+            if (!csOriginalImageData) {
+                showToast("Carica prima un'immagine", "warning");
+                return;
+            }
+
+            const targetHex = csReplaceColor.value;
+            const targetRgb = hexToRgb(targetHex);
+            const tolerance = parseInt(csTolerance.value);
+
+            const newImageData = new ImageData(
+                new Uint8ClampedArray(csOriginalImageData.data),
+                csOriginalImageData.width,
+                csOriginalImageData.height
+            );
+            const data = newImageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+
+                const distance = Math.sqrt(
+                    Math.pow(r - csSourceColor.r, 2) +
+                    Math.pow(g - csSourceColor.g, 2) +
+                    Math.pow(b - csSourceColor.b, 2)
+                );
+
+                if (distance <= tolerance) {
+                    const originalLum = (r * 0.299 + g * 0.587 + b * 0.114);
+                    const targetLum = (targetRgb.r * 0.299 + targetRgb.g * 0.587 + targetRgb.b * 0.114);
+                    const ratio = originalLum / (targetLum || 1);
+
+                    data[i] = Math.min(255, targetRgb.r * ratio);
+                    data[i + 1] = Math.min(255, targetRgb.g * ratio);
+                    data[i + 2] = Math.min(255, targetRgb.b * ratio);
+                }
+            }
+
+            csCtx.putImageData(newImageData, 0, 0);
+            showToast("Colore sostituito");
+        }
+
+        function resetColorSplashImage() {
+            if (!csOriginalImageData) return;
+            csCtx.putImageData(csOriginalImageData, 0, 0);
+            showToast("Immagine ripristinata");
+        }
+
+        function clearColorSplash() {
+            csCtx.clearRect(0, 0, csCanvas.width, csCanvas.height);
+            csOriginalImageData = null;
+            csCurrentImage = null;
+            csFileInput.value = '';
+            document.getElementById('emptyCanvasMsg').style.display = 'block';
+            csSourceColor = { r: 0, g: 0, b: 0 };
+            csSourcePreview.style.backgroundColor = '#000000';
+            csSourcePreview.textContent = '#000000';
+        }
+
+        function downloadColorSplash() {
+            if (!csOriginalImageData) {
+                showToast("Nessuna immagine", "warning");
+                return;
+            }
+            const a = document.createElement('a');
+            a.download = 'colorsplash_edit.png';
+            a.href = csCanvas.toDataURL('image/png');
+            a.click();
+        }
+
+        function rgbToHex(r, g, b) {
+            return "#" + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1);
+        }
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        /* --- PRESETS LOGIC --- */
+        const presetsList = [
+            ` <:ArrowRight:1398394460941062327> Make sure to download [Yunite Client](<https://yunite.xyz/client>) so your points count on the Leaderboard!\n:attach: <https://nobleprac.com/leaderboards> \n`,
+            `## Scrims Champion Event\n\nTop 10 players with the most scrim wins in May will earn the exclusive @Scrims Champion role.\n\nDate: May 1 – May 31, 2026\n\n- Every scrim win counts \n- Ties decided by average placement\n\nExclusive role, never obtainable again.`,
+            `Want to qualify to more stacked customs, just like the pros?\n\nSubscribe to our Gold and Diamond tiers on Patreon to gain access to Division 3 without needing a top 5 placement.\n\nGold: Solos Top 40 - Duos Top 20\nDiamond: Solos Top 80 - Duos Top 40\n\nFind out more information here: https://discord.com/channels/854725181384556584/973206221198872636\n[Patreon.com/NoblePracticeServer](<https://www.patreon.com/NoblePracticeServer>)`,
+            `• Make sure to invite your friends over, https://discord.gg/EU \n\nAll members of your team must be in this server and verified in <#854727051718426625> to play the scrims.`,
+            `Noble Solos Server\n\n- 0 PR Requirements \n- Sessions with DropMap\n- No Zone Rules\n- Solo Stacked Sessions - Practice and improve\n\nJoin the server and play now: https://discord.gg/kdYegcYPDa`,
+            `Do you want to play scrims with Dropmaps like Tier 1 Pros?\n\nNoble Division 0 hosts daily with dropmaps\n\n- Gain access by playing ONE game of scrims in <#917083097122615326> or <#905163647876206622> and verify!\n- Earn a promotion to Division 3 by placing well!\n- Practice in Stacked Sessions and improve\n\nhttps://discord.gg/Km6ngywx7f`
+        ];
+
+        function updatePresetHUD() {
+            const select = document.getElementById('presetSelect');
+            const btn = document.getElementById('btnNextPreset');
+            const progressBar = document.getElementById('presetProgressBar');
+            if (!select || !btn || !progressBar) return;
+            const currentIndex = parseInt(select.value);
+
+            if (currentIndex === 0) {
+                btn.innerHTML = "Inizia Hosting (Game 1)";
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.className = 'btn btn-primary';
+            } else if (currentIndex < presetsList.length) {
+                btn.innerHTML = `Prossimo Preset (Game ${currentIndex + 1})`;
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.className = 'btn btn-primary';
+            } else {
+                btn.innerHTML = "Tutti i Preset Inviati";
+                btn.disabled = true;
+                btn.style.opacity = '0.7';
+                btn.className = 'btn btn-secondary';
+            }
+
+            const totalSteps = presetsList.length;
+            for (let i = 0; i < totalSteps; i++) {
+                const stepEl = document.getElementById(`step-${i}`);
+                if (stepEl) {
+                    stepEl.classList.remove('active-step', 'completed-step');
+                    if (i < currentIndex) {
+                        stepEl.classList.add('completed-step');
+                        stepEl.innerHTML = '✓';
+                    } else if (i === currentIndex) {
+                        stepEl.classList.add('active-step');
+                        stepEl.innerHTML = (i + 1).toString();
+                    } else {
+                        stepEl.innerHTML = (i + 1).toString();
+                    }
+                }
+            }
+
+            const progressPercentage = (currentIndex / (totalSteps - 1)) * 100;
+            progressBar.style.width = `${Math.min(progressPercentage, 100)}%`;
+        }
+
+        if (document.getElementById('presetSelect')) {
+            document.getElementById('presetSelect').addEventListener('change', (e) => {
+                updatePresetHUD();
+                saveState();
+                const currentIndex = parseInt(e.target.value);
+                if (currentIndex > 0 && currentIndex <= presetsList.length) {
+                    const presetText = presetsList[currentIndex - 1];
+                    const output = document.getElementById('presetOutput');
+                    output.textContent = presetText;
+                    document.getElementById('presetOutputSection').style.display = 'block';
+                    navigator.clipboard.writeText(presetText).then(() => {
+                        showToast(`Preset ${currentIndex} copiato`);
+                    });
+                } else {
+                    document.getElementById('presetOutputSection').style.display = 'none';
+                }
+            });
+        }
+
+        function getNextPreset() {
+            const select = document.getElementById('presetSelect');
+            let currentIndex = parseInt(select.value);
+
+            if (currentIndex >= presetsList.length) {
+                showToast("Tutti i preset sono stati inviati", "warning");
+                return;
+            }
+
+            const presetText = presetsList[currentIndex];
+            const output = document.getElementById('presetOutput');
+            output.textContent = presetText;
+            document.getElementById('presetOutputSection').style.display = 'block';
+
+            currentIndex++;
+            select.value = currentIndex;
+            updatePresetHUD();
+            saveState();
+
+            navigator.clipboard.writeText(presetText).then(() => {
+                showToast(`Preset ${currentIndex} copiato`);
+            });
+        }
+
+        function resetPresets() {
+            document.getElementById('presetSelect').value = 0;
+            document.getElementById('presetOutputSection').style.display = 'none';
+            updatePresetHUD();
+            saveState();
+            showToast("Sequenza preset azzerata");
+        }
+
+        const generalPresetsList = [
+            `<@&854727975550320650> \n\nThe First Match is @ <> ~ <>!\n\n• Please read the #scrim-rules before playing.`,
+            `The Scrims have concluded!\n\nGames will resume soon.\n\n• Make sure to invite your friends over, https://discord.gg/EU`,
+            `Game cancelled due to no host.\n\nIf you have the Creator Code apply to become a host in #host-application`,
+            `We are looking for a host for this game. If you have a creator code, please DM with proof of having the start button.`,
+            `The key has been dispatched ~ Check your DMs by Yunite. Missed queue? Click above to sign up late.`,
+            `**Scrim Rules:**\n• Fight till 80 Alive.\n• Re-start Fighting 5th Zone APPEARS.\n• Stealing Loot/Teaming isn't allowed.`
+        ];
+
+        function copyGeneralPreset(index) {
+            const presetText = generalPresetsList[index];
+            navigator.clipboard.writeText(presetText).then(() => {
+                showToast("Preset copiato");
+            });
+        }
+
+        /* --- STATE RESTORATION --- */
+        function saveState() {
+            const stateToSave = {
+                activePage: state.activePage,
+                presetIndex: document.getElementById('presetSelect') ? document.getElementById('presetSelect').value : '0',
+                standardOptions: {
+                    sortDesc: document.getElementById('sortDesc').checked,
+                    newlineOutput: document.getElementById('newlineOutput').checked,
+                    top5Output: document.getElementById('top5Output').checked,
+                    ladderOutput: document.getElementById('ladderOutput').checked,
+                    victoryLadderOutput: document.getElementById('victoryLadderOutput').checked,
+                    solosClosedOutput: document.getElementById('solosClosedOutput').checked,
+                    mentionOutput: document.getElementById('mentionOutput').checked
+                },
+                level30Options: {
+                    sortDesc30: document.getElementById('sortDesc30').checked,
+                    newlineOutput30: document.getElementById('newlineOutput30').checked
+                }
+            };
+            localStorage.setItem('admin_ids_state', JSON.stringify(stateToSave));
+        }
+
+        function loadState() {
+            if (localStorage.getItem('admin_ids_theme') === 'light') {
+                toggleTheme();
+            }
+            try {
+                const saved = JSON.parse(localStorage.getItem('admin_ids_state'));
+                if (saved) {
+                    if (saved.activePage && saved.activePage === 'standard') {
+                        switchPage('standard', false);
+                    }
+                    if (saved.presetIndex !== undefined && document.getElementById('presetSelect')) {
+                        document.getElementById('presetSelect').value = saved.presetIndex;
+                        updatePresetHUD();
+                    }
+                    if (saved.standardOptions) {
+                        Object.keys(saved.standardOptions).forEach(key => {
+                            const el = document.getElementById(key);
+                            if (el) el.checked = saved.standardOptions[key];
+                        });
+                    }
+                    if (saved.level30Options) {
+                        Object.keys(saved.level30Options).forEach(key => {
+                            const el = document.getElementById(key);
+                            if (el) el.checked = saved.level30Options[key];
+                        });
+                    }
+                }
+            } catch (e) {}
+        }
+
+        /* --- DRAG & DROP FOR STANDARD --- */
+        const dropArea = document.getElementById('dropArea');
+        if (dropArea) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+                dropArea.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); });
+            });
+            dropArea.addEventListener('dragover', () => dropArea.classList.add('drag-over'));
+            dropArea.addEventListener('dragleave', () => dropArea.classList.remove('drag-over'));
+            dropArea.addEventListener('drop', e => {
+                dropArea.classList.remove('drag-over');
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = ev => {
+                        document.getElementById('idInput').value = ev.target.result;
+                        showToast("File caricato");
+                    };
+                    reader.readAsText(file);
+                }
+            });
+            dropArea.addEventListener('click', () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.txt,.csv';
+                input.onchange = e => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = ev => {
+                            document.getElementById('idInput').value = ev.target.result;
+                            showToast("File caricato");
+                        };
+                        reader.readAsText(file);
+                    }
+                };
+                input.click();
+            });
+        }
+
+        // URL Query Params
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('login_success')) {
+            showToast("Accesso Discord completato", "success");
+            window.history.replaceState({}, document.title, window.location.pathname);
+        } else if (urlParams.get('oauth_error')) {
+            const errType = urlParams.get('oauth_error');
+            if (errType === 'not_configured') {
+                showToast("Discord Auth: Credenziali non rilevate. Verifica il file .env", "danger");
+            } else if (errType === 'token_exchange_failed') {
+                showToast("Errore Discord: Verifica Client Secret e Redirect URI nel Discord Developer Portal", "danger");
+            } else {
+                showToast("Errore autenticazione Discord (" + errType + ")", "danger");
+            }
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        // Initialize application
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', saveState);
+        });
+
+        loadState();
+        checkAuthStatus();
+        setupLiveSyncSSE();
+    </script>
+</body>
+
+</html>

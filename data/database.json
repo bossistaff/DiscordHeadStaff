@@ -1,0 +1,32 @@
+{
+  "level30_archive": [
+    {
+      "id": "616671756471762944",
+      "addedBy": {
+        "id": "459683716634247172",
+        "username": "bossis",
+        "avatarUrl": "https://cdn.discordapp.com/avatars/459683716634247172/c795e5940695ec65acde53192521a03f.png",
+        "role": "creator"
+      },
+      "addedAt": "2026-11-09T22:59:06.532Z"
+    }
+  ],
+  "logs": [
+    {
+      "id": "log_1794265146532_mc3m",
+      "action": "Level 30 Filter (Aggiunta)",
+      "count": 1,
+      "output": "616671756471762944",
+      "user": {
+        "id": "459683716634247172",
+        "username": "bossis",
+        "avatarUrl": "https://cdn.discordapp.com/avatars/459683716634247172/c795e5940695ec65acde53192521a03f.png",
+        "role": "creator"
+      },
+      "timestamp": "2026-11-09T22:59:06.532Z"
+    }
+  ],
+  "settings": {
+    "lastUpdated": "2026-11-09T22:59:06.532Z"
+  }
+}
