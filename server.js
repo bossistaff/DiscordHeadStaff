@@ -12,21 +12,15 @@ const PORT = process.env.PORT || 3000;
 app.set('trust proxy', 1);
 
 // Authorized IDs configuration
-const CREATOR_ID = "459683716634247172";
-const ADMIN_IDS = [
-    "817378206520836156",
-    "422345185415135232",
-    "510792663210131456"
-];
+const CREATOR_ID = process.env.CREATOR_ID || "459683716634247172";
+const ADMIN_IDS = process.env.ADMIN_IDS
+    ? process.env.ADMIN_IDS.split(',').map(id => id.trim())
+    : [
+        "817378206520836156",
+        "422345185415135232",
+        "510792663210131456"
+    ];
 const ALL_AUTHORIZED_IDS = new Set([CREATOR_ID, ...ADMIN_IDS]);
-
-// Known users metadata
-const KNOWN_USERS = {
-    "459683716634247172": { username: "Creator", role: "creator", badge: "Creator 👑" },
-    "817378206520836156": { username: "Admin 1", role: "admin", badge: "Admin" },
-    "422345185415135232": { username: "Admin 2", role: "admin", badge: "Admin" },
-    "510792663210131456": { username: "Admin 3", role: "admin", badge: "Admin" }
-};
 
 // Database persistence
 const DATA_DIR = path.join(__dirname, 'data');
@@ -114,7 +108,39 @@ function isAuthorized(id) {
     return ALL_AUTHORIZED_IDS.has(String(id));
 }
 
-// Express Middleware
+// Express Middleware & Security Hardening
+app.disable('x-powered-by');
+
+// Security HTTP Headers
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    next();
+});
+
+// Basic rate limiter for API endpoints to prevent abuse
+const requestTracker = new Map();
+function apiRateLimiter(limit = 120, windowMs = 60 * 1000) {
+    return (req, res, next) => {
+        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+        const now = Date.now();
+        const info = requestTracker.get(ip) || { count: 0, resetTime: now + windowMs };
+        if (now > info.resetTime) {
+            info.count = 0;
+            info.resetTime = now + windowMs;
+        }
+        info.count++;
+        requestTracker.set(ip, info);
+        if (info.count > limit) {
+            return res.status(429).json({ success: false, error: "Too many requests. Please slow down." });
+        }
+        next();
+    };
+}
+app.use('/api/', apiRateLimiter());
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
@@ -132,7 +158,7 @@ function authMiddleware(req, res, next) {
 
 function requireAuth(req, res, next) {
     if (!req.user) {
-        return res.status(401).json({ success: false, error: "Unauthorized access. Please login." });
+        return res.status(401).json({ success: false, error: "Authentication required." });
     }
     next();
 }
@@ -141,7 +167,7 @@ function requireAdmin(req, res, next) {
     if (!req.user || !isAuthorized(req.user.id)) {
         return res.status(403).json({
             success: false,
-            error: "Access denied. Only the Creator and authorized Admins can access this section."
+            error: "Access denied."
         });
     }
     next();
@@ -158,7 +184,7 @@ function reloadEnv() {
     } catch (e) {}
 }
 
-// Check auth status & configuration
+// Check auth status & configuration (sensitive admin IDs are strictly kept server-side)
 app.get('/api/auth/status', (req, res) => {
     reloadEnv();
     const clientId = process.env.DISCORD_CLIENT_ID;
@@ -170,8 +196,6 @@ app.get('/api/auth/status', (req, res) => {
     res.json({
         success: true,
         isConfigured,
-        creatorId: CREATOR_ID,
-        adminIds: ADMIN_IDS,
         currentUser: req.user ? {
             id: req.user.id,
             username: req.user.username,
@@ -214,7 +238,12 @@ app.get('/api/auth/discord', (req, res) => {
     }
 
     const state = crypto.randomBytes(16).toString('hex');
-    res.cookie('oauth_state', state, { httpOnly: true, maxAge: 10 * 60 * 1000 });
+    res.cookie('oauth_state', state, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production' || req.headers['x-forwarded-proto'] === 'https',
+        sameSite: 'lax',
+        maxAge: 10 * 60 * 1000
+    });
 
     const discordAuthUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=identify&state=${state}`;
     res.redirect(discordAuthUrl);
@@ -223,10 +252,12 @@ app.get('/api/auth/discord', (req, res) => {
 // Discord OAuth2 Callback
 app.get('/api/auth/discord/callback', async (req, res) => {
     reloadEnv();
-    const { code } = req.query;
+    const { code, state } = req.query;
+    const storedState = req.cookies.oauth_state;
+    res.clearCookie('oauth_state');
 
-    if (!code) {
-        return res.redirect('/?oauth_error=no_code');
+    if (!code || !state || !storedState || state !== storedState) {
+        return res.redirect('/?oauth_error=invalid_state');
     }
 
     try {
@@ -249,7 +280,7 @@ app.get('/api/auth/discord/callback', async (req, res) => {
 
         if (!tokenRes.ok) {
             const errBody = await tokenRes.text();
-            console.error('[OAuth] Token exchange error:', errBody);
+            console.error('[OAuth] Token exchange error');
             return res.redirect('/?oauth_error=token_exchange_failed');
         }
 
@@ -291,13 +322,15 @@ app.get('/api/auth/discord/callback', async (req, res) => {
 
         res.cookie('session_token', sessionToken, {
             httpOnly: true,
+            secure: process.env.NODE_ENV === 'production' || req.headers['x-forwarded-proto'] === 'https',
+            sameSite: 'lax',
             maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
         });
 
-        console.log(`[AUTH] Login successful: ${userData.username} (${userId}) - Role: ${role}`);
+        console.log(`[AUTH] Login successful: ${userData.username} - Role: ${role}`);
         res.redirect('/?login_success=1');
     } catch (err) {
-        console.error('[OAuth] Callback error:', err);
+        console.error('[OAuth] Callback error');
         res.redirect('/?oauth_error=internal_error');
     }
 });
@@ -308,20 +341,24 @@ app.post('/api/auth/logout', (req, res) => {
     if (token) {
         sessions.delete(token);
     }
-    res.clearCookie('session_token');
+    res.clearCookie('session_token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production' || req.headers['x-forwarded-proto'] === 'https',
+        sameSite: 'lax'
+    });
     res.json({ success: true });
 });
 
 // --- LEVEL 30 SHARED ARCHIVE ROUTES ---
 
-// GET /api/level30: Get all archived IDs and details
-app.get('/api/level30', (req, res) => {
+// GET /api/level30: Get all archived IDs and details (Restricted to Creator & Admins)
+app.get('/api/level30', requireAdmin, (req, res) => {
     const idList = Array.from(archiveIdSet);
     res.json({
         success: true,
         count: idList.length,
         ids: idList,
-        items: req.user && req.user.canAccessAdmin ? db.level30_archive : undefined,
+        items: db.level30_archive,
         lastUpdated: db.settings.lastUpdated
     });
 });
@@ -569,8 +606,8 @@ app.post('/api/backup/import', requireAdmin, (req, res) => {
     });
 });
 
-// --- REAL-TIME SSE ENDPOINT ---
-app.get('/api/events', (req, res) => {
+// --- REAL-TIME SSE ENDPOINT (Restricted to Admins) ---
+app.get('/api/events', requireAdmin, (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
@@ -596,13 +633,19 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Global error handler to prevent leaking traces or details
+app.use((err, req, res, next) => {
+    console.error('[SERVER] Internal error caught');
+    res.status(500).json({ success: false, error: "Internal server error." });
+});
+
 // Start Server
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`=======================================================`);
     console.log(`🚀 Discord ID Pro Server running!`);
     console.log(`🌐 Port: ${PORT}`);
-    console.log(`👑 Creator: ${CREATOR_ID}`);
-    console.log(`🛡️ Authorized Admins: ${ADMIN_IDS.join(', ')}`);
+    console.log(`👑 Creator access configured`);
+    console.log(`🛡️ Authorized Admins: ${ADMIN_IDS.length} active`);
     console.log(`📦 Global Archive Count: ${archiveIdSet.size}`);
     console.log(`=======================================================`);
 });

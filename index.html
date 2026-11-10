@@ -8,7 +8,9 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --primary: #5865F2;
@@ -378,8 +380,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Typography */
@@ -409,8 +418,15 @@
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateX(6px); }
-            to { opacity: 1; transform: translateX(0); }
+            from {
+                opacity: 0;
+                transform: translateX(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         /* Cloud Info Banner */
@@ -925,8 +941,13 @@
         }
 
         @keyframes fadeInModal {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         .modal-content {
@@ -949,8 +970,15 @@
         }
 
         @keyframes scaleModal {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         .modal-header {
@@ -1104,8 +1132,13 @@
         }
 
         @keyframes slideInToast {
-            from { transform: translateX(120%); }
-            to { transform: translateX(0); }
+            from {
+                transform: translateX(120%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
         }
 
         @media (max-width: 768px) {
@@ -1113,15 +1146,19 @@
                 flex-direction: column;
                 align-items: stretch;
             }
+
             .brand-section {
                 justify-content: space-between;
             }
+
             .auth-widget {
                 justify-content: flex-end;
             }
+
             .btn-group {
                 flex-direction: column;
             }
+
             .btn-group button {
                 width: 100%;
             }
@@ -1137,8 +1174,9 @@
     <header class="top-bar">
         <div class="brand-section">
             <div class="brand-logo">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                 </svg>
             </div>
             <div>
@@ -1154,7 +1192,8 @@
             <!-- Populated dynamically via JS -->
             <button class="btn-discord-login" id="loginDiscordBtn" onclick="loginDiscord()">
                 <svg width="18" height="18" viewBox="0 0 127.14 96.36" fill="currentColor">
-                    <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                    <path
+                        d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z" />
                 </svg>
                 <span>Login with Discord</span>
             </button>
@@ -1166,19 +1205,32 @@
         <button class="nav-item active" onclick="switchPage('standard')">Standard</button>
         <button class="nav-item" id="nav-level30" onclick="switchPage('level30')">
             Level 30 <span id="historyCountBadge" class="badge">0</span>
-            <svg id="nav-lock-level30" class="nav-lock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <svg id="nav-lock-level30" class="nav-lock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
         </button>
         <button class="nav-item" onclick="switchPage('colorsplash')">Color Splash</button>
         <button class="nav-item" onclick="switchPage('presets')">Presets</button>
         <button class="nav-item" id="nav-logs" onclick="switchPage('logs')">
             Logs
-            <svg id="nav-lock-logs" class="nav-lock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <svg id="nav-lock-logs" class="nav-lock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
         </button>
         <button class="nav-item" id="nav-settings" onclick="switchPage('settings')">
             Settings
-            <svg id="nav-lock-settings" class="nav-lock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <svg id="nav-lock-settings" class="nav-lock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
         </button>
-        <button class="nav-item" id="themeToggle" onclick="toggleTheme()" title="Toggle Theme" style="margin-left: auto;">☀️</button>
+        <button class="nav-item" id="themeToggle" onclick="toggleTheme()" title="Toggle Theme"
+            style="margin-left: auto;">☀️</button>
     </nav>
 
     <!-- MAIN CONTAINER -->
@@ -1204,7 +1256,8 @@
             <div class="field-group">
                 <label>Input IDs</label>
                 <div class="textarea-wrapper">
-                    <textarea id="idInput" placeholder="Paste Discord IDs (one per line or comma-separated)..." style="height: 180px;"></textarea>
+                    <textarea id="idInput" placeholder="Paste Discord IDs (one per line or comma-separated)..."
+                        style="height: 180px;"></textarea>
                     <button class="btn-clear" onclick="clearTextarea('idInput')" title="Clear">×</button>
                 </div>
             </div>
@@ -1212,7 +1265,8 @@
             <div class="field-group">
                 <label>IDs to Exclude</label>
                 <div class="textarea-wrapper">
-                    <textarea id="excludeInput" placeholder="These IDs will be removed from the final result..." style="height: 80px;"></textarea>
+                    <textarea id="excludeInput" placeholder="These IDs will be removed from the final result..."
+                        style="height: 80px;"></textarea>
                     <button class="btn-clear" onclick="clearTextarea('excludeInput')" title="Clear">×</button>
                 </div>
             </div>
@@ -1241,11 +1295,16 @@
             <div class="options-row">
                 <label class="option-item"><input type="checkbox" id="sortDesc"> Sort Descending</label>
                 <label class="option-item"><input type="checkbox" id="newlineOutput"> One ID per line</label>
-                <label class="option-item"><input type="checkbox" id="top5Output" onchange="handleExclusiveCheckboxes(this)"> Top5</label>
-                <label class="option-item"><input type="checkbox" id="ladderOutput" onchange="handleExclusiveCheckboxes(this)"> Ladder</label>
-                <label class="option-item"><input type="checkbox" id="victoryLadderOutput" onchange="handleExclusiveCheckboxes(this)"> Victory Ladder</label>
-                <label class="option-item"><input type="checkbox" id="solosClosedOutput" onchange="handleExclusiveCheckboxes(this)"> Solos Closed</label>
-                <label class="option-item"><input type="checkbox" id="mentionOutput" onchange="handleExclusiveCheckboxes(this)"> Mention</label>
+                <label class="option-item"><input type="checkbox" id="top5Output"
+                        onchange="handleExclusiveCheckboxes(this)"> Top5</label>
+                <label class="option-item"><input type="checkbox" id="ladderOutput"
+                        onchange="handleExclusiveCheckboxes(this)"> Ladder</label>
+                <label class="option-item"><input type="checkbox" id="victoryLadderOutput"
+                        onchange="handleExclusiveCheckboxes(this)"> Victory Ladder</label>
+                <label class="option-item"><input type="checkbox" id="solosClosedOutput"
+                        onchange="handleExclusiveCheckboxes(this)"> Solos Closed</label>
+                <label class="option-item"><input type="checkbox" id="mentionOutput"
+                        onchange="handleExclusiveCheckboxes(this)"> Mention</label>
             </div>
 
             <div class="btn-group">
@@ -1268,10 +1327,12 @@
             <div class="cloud-banner">
                 <div class="cloud-banner-info">
                     <div>
-                        <strong>Shared Cloud Archive</strong> — IDs added here are automatically synchronized with the server database in real-time.
+                        <strong>Shared Cloud Archive</strong> — IDs added here are automatically synchronized with the
+                        server database in real-time.
                     </div>
                 </div>
-                <button class="btn btn-accent" style="min-width: 170px; padding: 7px 16px; font-size: 0.84rem;" onclick="openArchiveViewerModal()">
+                <button class="btn btn-accent" style="min-width: 170px; padding: 7px 16px; font-size: 0.84rem;"
+                    onclick="openArchiveViewerModal()">
                     View Archive (<span id="btnArchiveTotalCount">0</span>)
                 </button>
             </div>
@@ -1290,7 +1351,8 @@
             <div class="field-group">
                 <label>Paste New IDs</label>
                 <div class="textarea-wrapper">
-                    <textarea id="idInput30" placeholder="Paste new IDs to filter and archive..." style="height: 180px;"></textarea>
+                    <textarea id="idInput30" placeholder="Paste new IDs to filter and archive..."
+                        style="height: 180px;"></textarea>
                     <button class="btn-clear" onclick="clearTextarea('idInput30')" title="Clear">×</button>
                 </div>
             </div>
@@ -1323,14 +1385,16 @@
 
             <div class="output-container" id="outputSection30" style="display: none;">
                 <div class="output-header">
-                    <span style="font-weight: 600; color: var(--success); font-size: 0.88rem;">New Filtered IDs (Archived)</span>
+                    <span style="font-weight: 600; color: var(--success); font-size: 0.88rem;">New Filtered IDs
+                        (Archived)</span>
                 </div>
                 <div id="output30" class="output-box" style="border-color: rgba(46, 204, 113, 0.35);"></div>
             </div>
 
             <div class="output-container" id="excludedSection30" style="display: none; margin-top: 16px;">
                 <div class="output-header">
-                    <span style="font-weight: 600; color: var(--warning); font-size: 0.88rem;">IDs Already in Archive (Excluded)</span>
+                    <span style="font-weight: 600; color: var(--warning); font-size: 0.88rem;">IDs Already in Archive
+                        (Excluded)</span>
                 </div>
                 <div id="excludedOutput30" class="output-box" style="border-color: rgba(255, 165, 2, 0.35);"></div>
             </div>
@@ -1359,11 +1423,13 @@
                     </div>
                     <div class="color-picker-group">
                         <label>Replacement Color</label>
-                        <input type="color" id="csReplaceColor" value="#5865F2" style="width: 100%; height: 36px; border: 1px solid var(--card-border); border-radius: 6px; cursor: pointer;">
+                        <input type="color" id="csReplaceColor" value="#5865F2"
+                            style="width: 100%; height: 36px; border: 1px solid var(--card-border); border-radius: 6px; cursor: pointer;">
                     </div>
                     <div class="slider-group">
                         <label>Tolerance: <span id="csToleranceValue">50</span></label>
-                        <input type="range" id="csTolerance" min="0" max="255" value="50" style="width: 100%; accent-color: var(--primary);">
+                        <input type="range" id="csTolerance" min="0" max="255" value="50"
+                            style="width: 100%; accent-color: var(--primary);">
                     </div>
                 </div>
 
@@ -1383,21 +1449,38 @@
 
             <!-- Progress Tracker -->
             <div style="display: flex; justify-content: space-between; margin-bottom: 26px; position: relative;">
-                <div style="position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: var(--card-border); z-index: 1;"></div>
-                <div id="presetProgressBar" style="position: absolute; top: 50%; left: 0; width: 0%; height: 2px; background: var(--primary); z-index: 1; transition: all 0.5s ease; box-shadow: 0 0 8px var(--primary-glow);"></div>
+                <div
+                    style="position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: var(--card-border); z-index: 1;">
+                </div>
+                <div id="presetProgressBar"
+                    style="position: absolute; top: 50%; left: 0; width: 0%; height: 2px; background: var(--primary); z-index: 1; transition: all 0.5s ease; box-shadow: 0 0 8px var(--primary-glow);">
+                </div>
 
                 <!-- Steps -->
-                <div class="preset-step" id="step-0" style="z-index: 2; background: var(--bg-dark); color: var(--primary); font-weight: bold; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary); font-size: 0.85rem;">1</div>
-                <div class="preset-step" id="step-1" style="z-index: 2; background: var(--bg-dark); color: var(--text-dim); font-weight: bold; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card-border); font-size: 0.85rem;">2</div>
-                <div class="preset-step" id="step-2" style="z-index: 2; background: var(--bg-dark); color: var(--text-dim); font-weight: bold; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card-border); font-size: 0.85rem;">3</div>
-                <div class="preset-step" id="step-3" style="z-index: 2; background: var(--bg-dark); color: var(--text-dim); font-weight: bold; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card-border); font-size: 0.85rem;">4</div>
-                <div class="preset-step" id="step-4" style="z-index: 2; background: var(--bg-dark); color: var(--text-dim); font-weight: bold; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card-border); font-size: 0.85rem;">5</div>
-                <div class="preset-step" id="step-5" style="z-index: 2; background: var(--bg-dark); color: var(--text-dim); font-weight: bold; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card-border); font-size: 0.85rem;">6</div>
+                <div class="preset-step" id="step-0"
+                    style="z-index: 2; background: var(--bg-dark); color: var(--primary); font-weight: bold; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary); font-size: 0.85rem;">
+                    1</div>
+                <div class="preset-step" id="step-1"
+                    style="z-index: 2; background: var(--bg-dark); color: var(--text-dim); font-weight: bold; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card-border); font-size: 0.85rem;">
+                    2</div>
+                <div class="preset-step" id="step-2"
+                    style="z-index: 2; background: var(--bg-dark); color: var(--text-dim); font-weight: bold; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card-border); font-size: 0.85rem;">
+                    3</div>
+                <div class="preset-step" id="step-3"
+                    style="z-index: 2; background: var(--bg-dark); color: var(--text-dim); font-weight: bold; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card-border); font-size: 0.85rem;">
+                    4</div>
+                <div class="preset-step" id="step-4"
+                    style="z-index: 2; background: var(--bg-dark); color: var(--text-dim); font-weight: bold; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card-border); font-size: 0.85rem;">
+                    5</div>
+                <div class="preset-step" id="step-5"
+                    style="z-index: 2; background: var(--bg-dark); color: var(--text-dim); font-weight: bold; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card-border); font-size: 0.85rem;">
+                    6</div>
             </div>
 
             <div class="field-group">
                 <label>Select Match / Preset</label>
-                <select id="presetSelect" style="width: 100%; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--card-border); background: rgba(0,0,0,0.25); color: var(--text-main); font-family: var(--font-main); font-size: 0.9rem; outline: none;">
+                <select id="presetSelect"
+                    style="width: 100%; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--card-border); background: rgba(0,0,0,0.25); color: var(--text-main); font-family: var(--font-main); font-size: 0.9rem; outline: none;">
                     <option value="0">Select a Preset or Start with Game 1...</option>
                     <option value="1">Game 1 - Yunite Client Reminder</option>
                     <option value="2">Game 2 - Scrims Champion Event</option>
@@ -1409,13 +1492,15 @@
             </div>
 
             <div class="btn-group">
-                <button class="btn btn-primary" id="btnNextPreset" onclick="getNextPreset()">Start Hosting (Game 1)</button>
+                <button class="btn btn-primary" id="btnNextPreset" onclick="getNextPreset()">Start Hosting (Game
+                    1)</button>
                 <button class="btn btn-secondary" onclick="resetPresets()">Reset Sequence</button>
             </div>
 
             <div class="output-container" id="presetOutputSection" style="display: none;">
                 <div class="output-header">
-                    <span style="font-weight: 600; color: var(--text-dim); font-size: 0.88rem;">Copied Preset Content</span>
+                    <span style="font-weight: 600; color: var(--text-dim); font-size: 0.88rem;">Copied Preset
+                        Content</span>
                 </div>
                 <div id="presetOutput" class="output-box"></div>
             </div>
@@ -1423,22 +1508,28 @@
             <div style="margin-top: 36px; border-top: 1px solid var(--card-border); padding-top: 22px;">
                 <h3 style="font-size: 1rem; margin-bottom: 14px; color: var(--text-dim);">General Quick Messages</h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
-                    <div class="quick-copy-box" onclick="copyGeneralPreset(0)" style="width: 100%; justify-content: center;">
+                    <div class="quick-copy-box" onclick="copyGeneralPreset(0)"
+                        style="width: 100%; justify-content: center;">
                         <span class="label">First Match Alert</span>
                     </div>
-                    <div class="quick-copy-box" onclick="copyGeneralPreset(1)" style="width: 100%; justify-content: center;">
+                    <div class="quick-copy-box" onclick="copyGeneralPreset(1)"
+                        style="width: 100%; justify-content: center;">
                         <span class="label">Scrims Concluded</span>
                     </div>
-                    <div class="quick-copy-box" onclick="copyGeneralPreset(2)" style="width: 100%; justify-content: center;">
+                    <div class="quick-copy-box" onclick="copyGeneralPreset(2)"
+                        style="width: 100%; justify-content: center;">
                         <span class="label">Game Cancelled</span>
                     </div>
-                    <div class="quick-copy-box" onclick="copyGeneralPreset(3)" style="width: 100%; justify-content: center;">
+                    <div class="quick-copy-box" onclick="copyGeneralPreset(3)"
+                        style="width: 100%; justify-content: center;">
                         <span class="label">Looking for Host</span>
                     </div>
-                    <div class="quick-copy-box" onclick="copyGeneralPreset(4)" style="width: 100%; justify-content: center;">
+                    <div class="quick-copy-box" onclick="copyGeneralPreset(4)"
+                        style="width: 100%; justify-content: center;">
                         <span class="label">Sign-up Dispatch</span>
                     </div>
-                    <div class="quick-copy-box" onclick="copyGeneralPreset(5)" style="width: 100%; justify-content: center;">
+                    <div class="quick-copy-box" onclick="copyGeneralPreset(5)"
+                        style="width: 100%; justify-content: center;">
                         <span class="label">Scrim Rules</span>
                     </div>
                 </div>
@@ -1450,9 +1541,12 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
                 <div>
                     <h1>Audit Logs</h1>
-                    <p class="subtitle" style="margin-bottom: 0;">Centralized history of list processing and archive additions.</p>
+                    <p class="subtitle" style="margin-bottom: 0;">Centralized history of list processing and archive
+                        additions.</p>
                 </div>
-                <button class="btn btn-secondary" style="flex: none; min-width: 110px; padding: 7px 14px; font-size: 0.85rem;" onclick="loadSharedLogs()">
+                <button class="btn btn-secondary"
+                    style="flex: none; min-width: 110px; padding: 7px 14px; font-size: 0.85rem;"
+                    onclick="loadSharedLogs()">
                     Refresh
                 </button>
             </div>
@@ -1467,50 +1561,11 @@
         <!-- PAGE: SETTINGS -->
         <div id="page-settings" class="page">
             <h1>Settings & Staff</h1>
-            <p class="subtitle">Manage access permissions, backups, and central archive.</p>
-
-            <!-- Staff Permissions -->
-            <div style="background: rgba(88, 101, 242, 0.04); border: 1px solid rgba(88, 101, 242, 0.16); padding: 18px; border-radius: 14px; margin-bottom: 24px;">
-                <h3 style="font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">
-                    Authorized Staff
-                </h3>
-                <p style="font-size: 0.84rem; color: var(--text-dim); margin-bottom: 12px;">
-                    Only the Creator and listed Admins have access to Level 30, Logs, and Settings:
-                </p>
-                <div class="staff-grid">
-                    <div class="staff-card" style="border-color: rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.03);">
-                        <div class="staff-avatar-initial" style="background: rgba(255, 215, 0, 0.15); color: #ffd700;">👑</div>
-                        <div class="staff-info">
-                            <span class="staff-name" style="color: #ffd700;">Creator</span>
-                            <span class="staff-id">459683716634247172</span>
-                        </div>
-                    </div>
-                    <div class="staff-card">
-                        <div class="staff-avatar-initial">A1</div>
-                        <div class="staff-info">
-                            <span class="staff-name">Admin 1</span>
-                            <span class="staff-id">817378206520836156</span>
-                        </div>
-                    </div>
-                    <div class="staff-card">
-                        <div class="staff-avatar-initial">A2</div>
-                        <div class="staff-info">
-                            <span class="staff-name">Admin 2</span>
-                            <span class="staff-id">422345185415135232</span>
-                        </div>
-                    </div>
-                    <div class="staff-card">
-                        <div class="staff-avatar-initial">A3</div>
-                        <div class="staff-info">
-                            <span class="staff-name">Admin 3</span>
-                            <span class="staff-id">510792663210131456</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <p class="subtitle">Manage backups and central archive.</p>
 
             <!-- Central Cloud Backup -->
-            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); padding: 18px; border-radius: 14px; margin-bottom: 24px;">
+            <div
+                style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); padding: 18px; border-radius: 14px; margin-bottom: 24px;">
                 <h3 style="font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">
                     Backup & Restore
                 </h3>
@@ -1519,13 +1574,15 @@
                 </p>
                 <div class="btn-group">
                     <button class="btn btn-secondary" onclick="exportData()">Export Backup (.json)</button>
-                    <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">Import Database</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">Import
+                        Database</button>
                     <input type="file" id="importFile" hidden accept=".json,.txt" onchange="importData(event)">
                 </div>
             </div>
 
             <!-- Danger Zone -->
-            <div style="padding: 18px; border-radius: 14px; background: rgba(255, 71, 87, 0.04); border: 1px solid rgba(255, 71, 87, 0.18);">
+            <div
+                style="padding: 18px; border-radius: 14px; background: rgba(255, 71, 87, 0.04); border: 1px solid rgba(255, 71, 87, 0.18);">
                 <label style="color: var(--danger); font-size: 0.92rem;">Danger Zone</label>
                 <p style="font-size: 0.82rem; color: var(--text-dim); margin-bottom: 14px;">
                     This action will permanently delete all Level 30 archive IDs on the server for all users.
@@ -1540,25 +1597,24 @@
 
     <!-- MODAL: ACCESS RESTRICTED -->
     <div class="modal-overlay" id="accessDeniedModal">
-        <div class="modal-content" style="max-width: 440px; text-align: center;">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
             <div class="modal-header" style="justify-content: center; border-bottom: none; padding-top: 26px;">
-                <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(255, 71, 87, 0.12); display: flex; align-items: center; justify-content: center; color: var(--danger); margin: 0 auto;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <div
+                    style="width: 50px; height: 50px; border-radius: 50%; background: rgba(255, 71, 87, 0.12); display: flex; align-items: center; justify-content: center; color: var(--danger); margin: 0 auto;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
                 </div>
             </div>
             <div class="modal-body" style="padding-top: 6px;">
-                <h3 style="font-size: 1.25rem; color: var(--text-main); margin-bottom: 10px; font-family: var(--font-heading);">
-                    Staff Access Only
+                <h3
+                    style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 10px; font-family: var(--font-heading);">
+                    Restricted Access
                 </h3>
-                <p style="font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 18px;">
-                    This section is protected and accessible only to authorized Discord accounts:
+                <p style="font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 20px;">
+                    This section requires Discord authentication.
                 </p>
-                <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--card-border); border-radius: 10px; padding: 12px; margin-bottom: 20px; text-align: left; font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent); line-height: 1.7;">
-                    <div>Creator: 459683716634247172</div>
-                    <div>Admin 1: 817378206520836156</div>
-                    <div>Admin 2: 422345185415135232</div>
-                    <div>Admin 3: 510792663210131456</div>
-                </div>
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     <button class="btn btn-primary" onclick="loginDiscord()" style="width: 100%;">
                         Login with Discord
@@ -1579,11 +1635,14 @@
                 <button class="modal-close-btn" onclick="closeArchiveViewerModal()">×</button>
             </div>
             <div class="modal-body">
-                <input type="text" class="archive-search-box" id="archiveSearchInput" placeholder="Search Discord ID in archive..." oninput="filterArchiveList()">
-                
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.82rem; color: var(--text-dim);">
+                <input type="text" class="archive-search-box" id="archiveSearchInput"
+                    placeholder="Search Discord ID in archive..." oninput="filterArchiveList()">
+
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.82rem; color: var(--text-dim);">
                     <span id="archiveFilteredCount">Showing 0 IDs</span>
-                    <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 0.76rem; min-width: auto;" onclick="copiaTuttoArchivio()">
+                    <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 0.76rem; min-width: auto;"
+                        onclick="copiaTuttoArchivio()">
                         Copy All IDs
                     </button>
                 </div>
@@ -1603,9 +1662,9 @@
 
     <script>
         /* --- GLOBAL APPLICATION STATE --- */
-        const CREATOR_ID = "459683716634247172";
-        const ADMIN_IDS = ["817378206520836156", "422345185415135232", "510792663210131456"];
-        const AUTHORIZED_IDS = new Set([CREATOR_ID, ...ADMIN_IDS]);
+        // Authorization is managed entirely server-side.
+        // The frontend only uses canAccessAdmin from the authenticated session.
+        let AUTHORIZED_IDS = new Set();
 
         let currentUser = null;
         let isServerConnected = false;
@@ -1636,7 +1695,7 @@
                     currentUser = null;
                 }
             } catch (err) {
-                console.warn("[Cloud] Server offline, local fallback:", err);
+                // server offline - local fallback
                 isServerConnected = false;
                 updateServerStatus(false);
                 currentUser = null;
@@ -1666,8 +1725,8 @@
             if (!container) return;
 
             if (currentUser) {
-                const isCreator = currentUser.id === CREATOR_ID;
-                const isAdmin = ADMIN_IDS.includes(currentUser.id);
+                const isCreator = currentUser.role === 'creator';
+                const isAdmin = currentUser.role === 'admin';
                 const roleClass = isCreator ? 'role-creator' : (isAdmin ? 'role-admin' : 'role-guest');
                 const roleLabel = isCreator ? 'Creator 👑' : (isAdmin ? 'Admin' : 'Guest');
 
@@ -1726,7 +1785,7 @@
         async function logoutDiscord() {
             try {
                 await fetch('/api/auth/logout', { method: 'POST' });
-            } catch (e) {}
+            } catch (e) { }
             currentUser = null;
             showToast("Logged out successfully", "success");
             renderAuthWidget();
@@ -1754,7 +1813,7 @@
                         return;
                     }
                 } catch (e) {
-                    console.error("[Sync] Error:", e);
+                    // sync error
                 }
             }
 
@@ -1963,7 +2022,7 @@
                         return;
                     }
                 } catch (e) {
-                    console.error("Error fetching logs:", e);
+                    // log fetch error
                 }
             }
 
@@ -2155,7 +2214,7 @@
                     setTimeout(setupLiveSyncSSE, 10000);
                 };
             } catch (err) {
-                console.warn("[LiveSync] SSE unavailable:", err);
+                // SSE unavailable
             }
         }
 
@@ -2700,7 +2759,7 @@
                         });
                     }
                 }
-            } catch (e) {}
+            } catch (e) { }
         }
 
         /* --- DRAG & DROP FOR STANDARD --- */
