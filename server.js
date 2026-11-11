@@ -20,6 +20,13 @@ const ADMIN_IDS = process.env.ADMIN_IDS
         "422345185415135232",
         "510792663210131456"
     ];
+const TASK_ASSIGNMENTS = {
+    "817378206520836156": ["Activity checks", "Ladders"],
+    "422345185415135232": ["Activity checks", "Invites", "Yunite presets"],
+    "510792663210131456": ["Activity checks", "Ladders"],
+    "575312474023133184": ["Recruit Chat Mods", "Help the staff team"]
+};
+const TASK_VIEWER_IDS = new Set(Object.keys(TASK_ASSIGNMENTS));
 const ALL_AUTHORIZED_IDS = new Set([CREATOR_ID, ...ADMIN_IDS]);
 
 // Database persistence
@@ -106,6 +113,10 @@ function getRoleForId(id) {
 
 function isAuthorized(id) {
     return ALL_AUTHORIZED_IDS.has(String(id));
+}
+
+function canViewTasks(user) {
+    return Boolean(user && (user.role === 'creator' || TASK_VIEWER_IDS.has(String(user.id))));
 }
 
 // Express Middleware & Security Hardening
@@ -203,7 +214,8 @@ app.get('/api/auth/status', (req, res) => {
             avatar: req.user.avatar,
             avatarUrl: req.user.avatarUrl,
             role: req.user.role,
-            canAccessAdmin: req.user.canAccessAdmin
+            canAccessAdmin: req.user.canAccessAdmin,
+            canViewTasks: canViewTasks(req.user)
         } : null
     });
 });
@@ -222,9 +234,44 @@ app.get('/api/auth/me', (req, res) => {
             avatar: req.user.avatar,
             avatarUrl: req.user.avatarUrl,
             role: req.user.role,
-            canAccessAdmin: req.user.canAccessAdmin
+            canAccessAdmin: req.user.canAccessAdmin,
+            canViewTasks: canViewTasks(req.user)
         }
     });
+});
+
+// Staff task data is filtered on the server. Only the creator receives the full roster.
+app.get('/api/tasks', requireAuth, (req, res) => {
+    if (!canViewTasks(req.user)) {
+        return res.status(403).json({ success: false, error: "Access denied." });
+    }
+
+    const isCreator = req.user.role === 'creator';
+    const users = isCreator
+        ? Object.entries(TASK_ASSIGNMENTS)
+        : [[String(req.user.id), TASK_ASSIGNMENTS[String(req.user.id)]]];
+    const assignments = users.map(([id, tasks]) => ({ id, tasks }));
+    const firstMonday = new Date('2026-11-16T00:00:00.000Z');
+    const cycle = [
+        { chatMods: "817378206520836156", helpers: "422345185415135232" },
+        { chatMods: "422345185415135232", helpers: "510792663210131456" },
+        { chatMods: "510792663210131456", helpers: "817378206520836156" }
+    ];
+    const rotation = [];
+    for (let week = 0; week < 12; week++) {
+        const date = new Date(firstMonday);
+        date.setUTCDate(firstMonday.getUTCDate() + week * 7);
+        const entry = { week: week + 1, startsAt: date.toISOString(), ...cycle[week % cycle.length] };
+        if (isCreator || entry.chatMods === String(req.user.id) || entry.helpers === String(req.user.id)) {
+            rotation.push(isCreator ? entry : {
+                week: entry.week,
+                startsAt: entry.startsAt,
+                chatMods: entry.chatMods === String(req.user.id) ? entry.chatMods : null,
+                helpers: entry.helpers === String(req.user.id) ? entry.helpers : null
+            });
+        }
+    }
+    res.json({ success: true, isCreator, assignments, rotation });
 });
 
 // Discord OAuth2 Redirect

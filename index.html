@@ -1163,6 +1163,190 @@
                 width: 100%;
             }
         }
+
+        /* Visual polish: keep the existing layout and behavior intact. */
+        :root {
+            --primary: #6875ff;
+            --primary-glow: rgba(104, 117, 255, 0.28);
+            --accent: #54d8ef;
+            --accent-glow: rgba(84, 216, 239, 0.18);
+            --bg-dark: #090b12;
+            --card-bg: rgba(19, 23, 36, 0.78);
+            --card-border: rgba(164, 176, 220, 0.13);
+            --text-main: #f0f2fa;
+            --text-dim: #9ba4ba;
+            --glass-blur: blur(18px);
+        }
+
+        html { color-scheme: dark; }
+
+        body {
+            background-image:
+                radial-gradient(ellipse at 12% 0%, rgba(91, 104, 255, 0.16), transparent 42%),
+                radial-gradient(ellipse at 92% 72%, rgba(34, 180, 211, 0.10), transparent 40%),
+                linear-gradient(180deg, #0b0e17 0%, #090b12 100%);
+            background-attachment: fixed;
+        }
+
+        body.light-mode {
+            --card-bg: rgba(255, 255, 255, 0.82);
+            --card-border: rgba(34, 48, 78, 0.12);
+            background-image:
+                radial-gradient(ellipse at 10% 0%, rgba(104, 117, 255, 0.12), transparent 42%),
+                radial-gradient(ellipse at 92% 72%, rgba(34, 180, 211, 0.08), transparent 40%),
+                linear-gradient(180deg, #f5f7fc 0%, #edf1f8 100%);
+        }
+
+        .top-bar, .nav-container, .page, .modal-content {
+            border-color: var(--card-border);
+            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.20), inset 0 1px 0 rgba(255, 255, 255, 0.035);
+        }
+
+        .top-bar {
+            max-width: 1080px;
+            padding: 15px 22px;
+            border-radius: 16px;
+            background: var(--card-bg);
+        }
+
+        .brand-logo {
+            border-radius: 12px;
+            background: linear-gradient(145deg, #7882ff, #4c5be0);
+            box-shadow: 0 7px 22px var(--primary-glow);
+        }
+
+        .nav-container {
+            max-width: 1080px;
+            border-radius: 14px;
+            padding: 7px;
+            background: var(--card-bg);
+        }
+
+        .nav-item {
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(104, 117, 255, 0.24), rgba(104, 117, 255, 0.11));
+            box-shadow: inset 0 0 0 1px rgba(133, 145, 255, 0.2);
+        }
+
+        .container { max-width: 920px; }
+
+        .page {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: clamp(22px, 4vw, 38px);
+            backdrop-filter: var(--glass-blur);
+        }
+
+        h1, h2, h3 { letter-spacing: -0.025em; }
+
+        .field-group label, .label {
+            color: var(--text-main);
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+
+        textarea, input[type="text"], .output-box, .quick-copy-box,
+        .drop-area, .cloud-banner, .archive-search-box {
+            border-color: var(--card-border);
+            border-radius: 12px;
+        }
+
+        textarea, input[type="text"] {
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+        }
+
+        textarea:focus, input[type="text"]:focus {
+            border-color: rgba(119, 132, 255, 0.72) !important;
+            box-shadow: 0 0 0 3px rgba(104, 117, 255, 0.14);
+            outline: none;
+        }
+
+        .stat-card, .staff-card, .log-item, .archive-row {
+            border-color: var(--card-border);
+            border-radius: 13px;
+            transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .stat-card:hover, .staff-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(119, 132, 255, 0.35);
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.14);
+        }
+
+        .btn-primary, .btn-secondary, .btn-danger, .btn-accent,
+        .btn-discord-login, .btn-auth-action {
+            border-radius: 10px;
+            transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .btn-primary:hover, .btn-secondary:hover, .btn-danger:hover,
+        .btn-accent:hover, .btn-discord-login:hover, .btn-auth-action:hover {
+            transform: translateY(-1px);
+        }
+
+        button:focus-visible, a:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 3px;
+        }
+
+        ::selection { background: rgba(104, 117, 255, 0.36); color: #fff; }
+
+        ::-webkit-scrollbar { width: 9px; height: 9px; }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(145, 157, 190, 0.32);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            background-clip: padding-box;
+        }
+        ::-webkit-scrollbar-thumb:hover { background-color: rgba(145, 157, 190, 0.52); }
+
+        @media (max-width: 768px) {
+            .top-bar, .nav-container { width: calc(100% - 24px); }
+            .page { width: calc(100% - 24px); padding: 22px 18px; border-radius: 16px; }
+            .nav-container { gap: 5px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+        }
+
+        .tasks-section { margin-top: 28px; }
+        .tasks-section h2 { font: 600 1.08rem var(--font-heading); margin-bottom: 12px; }
+        .task-note { color: var(--text-dim); font-size: 0.86rem; margin: -5px 0 14px; }
+        .task-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+        .task-card {
+            padding: 16px;
+            border: 1px solid var(--card-border);
+            border-radius: 13px;
+            background: rgba(255, 255, 255, 0.025);
+        }
+        .task-card h3 { font-size: 0.95rem; margin-bottom: 10px; }
+        .task-card ul { padding-left: 18px; color: var(--text-dim); font-size: 0.88rem; }
+        .task-card li + li { margin-top: 5px; }
+        .task-id { display: block; color: var(--text-dim); font: 0.72rem var(--font-mono); margin-top: 10px; }
+        .task-rotation { display: grid; gap: 8px; }
+        .task-week {
+            display: grid;
+            grid-template-columns: minmax(105px, 0.7fr) 1fr 1fr;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 14px;
+            border: 1px solid var(--card-border);
+            border-radius: 11px;
+            background: rgba(255, 255, 255, 0.025);
+            font-size: 0.84rem;
+        }
+        .task-week-date { color: var(--text-dim); }
+        .task-role strong { display: block; color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; }
+        .task-role span { color: var(--text-main); }
+        @media (max-width: 560px) {
+            .task-week { grid-template-columns: 1fr 1fr; }
+            .task-week-date { grid-column: 1 / -1; }
+        }
     </style>
 </head>
 
@@ -1229,6 +1413,7 @@
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
         </button>
+        <button class="nav-item" id="nav-tasks" onclick="switchPage('tasks')" style="display: none;">Tasks</button>
         <button class="nav-item" id="themeToggle" onclick="toggleTheme()" title="Toggle Theme"
             style="margin-left: auto;">☀️</button>
     </nav>
@@ -1593,6 +1778,21 @@
             </div>
         </div>
 
+        <!-- PAGE: PRIVATE STAFF TASKS -->
+        <div id="page-tasks" class="page">
+            <h1>Staff Tasks</h1>
+            <p class="subtitle" id="tasksSubtitle">Your assigned responsibilities and upcoming rotation.</p>
+            <section class="tasks-section">
+                <h2>Responsibilities</h2>
+                <div id="taskAssignments" class="task-grid"></div>
+            </section>
+            <section class="tasks-section">
+                <h2>Chat Mods &amp; Helpers Rotation</h2>
+                <p class="task-note">Weekly assignments beginning Monday, 16 November 2026.</p>
+                <div id="taskRotation" class="task-rotation"></div>
+            </section>
+        </div>
+
     </main>
 
     <!-- MODAL: ACCESS RESTRICTED -->
@@ -1757,6 +1957,9 @@
 
         function updateNavigationLocks() {
             const hasAccess = currentUser && currentUser.canAccessAdmin;
+            const tasksButton = document.getElementById('nav-tasks');
+            const canViewTasks = currentUser && currentUser.canViewTasks;
+            if (tasksButton) tasksButton.style.display = canViewTasks ? '' : 'none';
             const protectedTabs = ['level30', 'logs', 'settings'];
 
             protectedTabs.forEach(id => {
@@ -1776,6 +1979,7 @@
             if (!hasAccess && protectedTabs.includes(state.activePage)) {
                 switchPage('standard', true);
             }
+            if (!canViewTasks && state.activePage === 'tasks') switchPage('standard', true);
         }
 
         function loginDiscord() {
@@ -1798,6 +2002,70 @@
 
         function closeAccessDeniedModal() {
             document.getElementById('accessDeniedModal').classList.remove('active');
+        }
+
+        async function loadTasks() {
+            const assignmentsBox = document.getElementById('taskAssignments');
+            const rotationBox = document.getElementById('taskRotation');
+            if (!currentUser || !currentUser.canViewTasks) return;
+            assignmentsBox.replaceChildren();
+            rotationBox.replaceChildren();
+            try {
+                const response = await fetch('/api/tasks');
+                if (!response.ok) throw new Error('Could not load tasks');
+                const data = await response.json();
+                document.getElementById('tasksSubtitle').textContent = data.isCreator
+                    ? 'Complete staff responsibilities and upcoming rotation.'
+                    : 'Your assigned responsibilities and upcoming rotation.';
+
+                data.assignments.forEach(assignment => {
+                    const card = document.createElement('article');
+                    card.className = 'task-card';
+                    const heading = document.createElement('h3');
+                    heading.textContent = data.isCreator ? `Staff member · ${assignment.id}` : 'Your responsibilities';
+                    const list = document.createElement('ul');
+                    assignment.tasks.forEach(task => {
+                        const item = document.createElement('li');
+                        item.textContent = task;
+                        list.appendChild(item);
+                    });
+                    card.append(heading, list);
+                    if (data.isCreator) {
+                        const id = document.createElement('span');
+                        id.className = 'task-id';
+                        id.textContent = `Discord ID: ${assignment.id}`;
+                        card.appendChild(id);
+                    }
+                    assignmentsBox.appendChild(card);
+                });
+
+                data.rotation.forEach(entry => {
+                    const row = document.createElement('div');
+                    row.className = 'task-week';
+                    const date = document.createElement('div');
+                    date.className = 'task-week-date';
+                    const startDate = new Date(entry.startsAt);
+                    date.textContent = `Week ${entry.week} · ${startDate.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}`;
+                    const roles = [
+                        ['Chat Mods', entry.chatMods],
+                        ['Helpers', entry.helpers]
+                    ];
+                    row.appendChild(date);
+                    roles.forEach(([label, id]) => {
+                        const role = document.createElement('div');
+                        role.className = 'task-role';
+                        const title = document.createElement('strong');
+                        title.textContent = label;
+                        const member = document.createElement('span');
+                        member.textContent = data.isCreator ? id : (id === currentUser.id ? 'You' : '—');
+                        role.append(title, member);
+                        row.appendChild(role);
+                    });
+                    rotationBox.appendChild(row);
+                });
+            } catch (error) {
+                assignmentsBox.textContent = 'Tasks are temporarily unavailable. Please try again.';
+            }
         }
 
         /* --- LEVEL 30 ARCHIVE --- */
@@ -2227,6 +2495,11 @@
                     return;
                 }
             }
+            if (pageId === 'tasks' && (!currentUser || !currentUser.canViewTasks)) {
+                if (!currentUser) showAccessDeniedModal(pageId);
+                else showToast('You do not have access to Tasks.', 'error');
+                return;
+            }
 
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -2241,12 +2514,14 @@
             if (pageId === 'presets') items[3].classList.add('active');
             if (pageId === 'logs') items[4].classList.add('active');
             if (pageId === 'settings') items[5].classList.add('active');
+            if (pageId === 'tasks') items[6].classList.add('active');
 
             state.activePage = pageId;
             if (save) saveState();
 
             if (pageId === 'level30') updateLevel30Stats();
             if (pageId === 'logs') loadSharedLogs();
+            if (pageId === 'tasks') loadTasks();
         }
 
         /* --- STANDARD LOGIC --- */
