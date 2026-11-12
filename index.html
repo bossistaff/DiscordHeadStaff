@@ -2078,6 +2078,7 @@
                         sharedArchiveSet = new Set(data.ids || []);
                         sharedArchiveItems = data.items || [];
                         updateLevel30Stats();
+                        await flushPendingLevel30Ids();
                         return;
                     }
                 } catch (e) {
@@ -2104,6 +2105,47 @@
         function getLevel30History() {
             return Array.from(sharedArchiveSet);
         }
+
+        const PENDING_LEVEL30_KEY = 'level30_pending_uploads';
+
+        function getPendingLevel30Ids() {
+            try {
+                const ids = JSON.parse(localStorage.getItem(PENDING_LEVEL30_KEY) || '[]');
+                return Array.isArray(ids) ? ids.filter(id => /^\d{16,21}$/.test(String(id))) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function queuePendingLevel30Ids(ids) {
+            const pending = new Set(getPendingLevel30Ids());
+            ids.forEach(id => pending.add(String(id)));
+            localStorage.setItem(PENDING_LEVEL30_KEY, JSON.stringify(Array.from(pending)));
+        }
+
+        async function flushPendingLevel30Ids() {
+            if (!isServerConnected || !currentUser || !currentUser.canAccessAdmin) return;
+            const pending = getPendingLevel30Ids();
+            if (pending.length === 0) return;
+            try {
+                const res = await fetch('/api/level30/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids: pending })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) throw new Error(data.error || 'Server save failed');
+                localStorage.removeItem(PENDING_LEVEL30_KEY);
+                (data.ids || pending).forEach(id => sharedArchiveSet.add(id));
+                updateLevel30Stats();
+                if (data.addedCount > 0) loadSharedLogs();
+                showToast(`Synced ${pending.length} queued IDs to the shared archive`, 'success');
+            } catch (e) {
+                // Keep queued IDs until the server confirms the write.
+            }
+        }
+
+        window.addEventListener('online', flushPendingLevel30Ids);
 
         async function elaboraLevel30() {
             if (!currentUser || !currentUser.canAccessAdmin) {
@@ -2163,7 +2205,10 @@
                             throw new Error(data.error);
                         }
                     } catch (err) {
-                        showToast("Server save error: " + err.message, "danger");
+                        queuePendingLevel30Ids(nuovi);
+                        nuovi.forEach(id => sharedArchiveSet.add(id));
+                        updateLevel30Stats();
+                        showToast("Server temporarily unavailable. IDs queued on this device and will sync after reconnecting.", "warning");
                     }
                 } else {
                     nuovi.forEach(id => sharedArchiveSet.add(id));
