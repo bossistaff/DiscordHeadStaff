@@ -30,7 +30,10 @@ const TASK_VIEWER_IDS = new Set(Object.keys(TASK_ASSIGNMENTS));
 const ALL_AUTHORIZED_IDS = new Set([CREATOR_ID, ...ADMIN_IDS]);
 
 // Database persistence
-const DATA_DIR = path.join(__dirname, 'data');
+// Point DATA_DIR at a persistent volume in production (for example /var/data).
+const DATA_DIR = process.env.DATA_DIR
+    ? path.resolve(process.env.DATA_DIR)
+    : path.join(__dirname, 'data');
 const DB_FILE = path.join(DATA_DIR, 'database.json');
 
 if (!fs.existsSync(DATA_DIR)) {
@@ -59,7 +62,13 @@ if (fs.existsSync(DB_FILE)) {
         console.error('[DB] Error reading database, initializing fresh:', e);
     }
 } else {
-    saveDatabase();
+    const previousDb = path.join(__dirname, 'data', 'database.json');
+    if (path.resolve(previousDb) !== path.resolve(DB_FILE) && fs.existsSync(previousDb)) {
+        fs.copyFileSync(previousDb, DB_FILE);
+        console.log(`[DB] Migrated existing archive to ${DB_FILE}.`);
+    } else {
+        saveDatabase();
+    }
 }
 
 // In-memory set of archive IDs for O(1) lookups
@@ -84,6 +93,7 @@ function saveDatabase() {
         fs.renameSync(tempFile, DB_FILE);
     } catch (err) {
         console.error('[DB] Error saving database:', err);
+        throw new Error('Database persistence failed. Check DATA_DIR and the persistent disk configuration.');
     }
 }
 
