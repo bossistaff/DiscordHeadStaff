@@ -90,6 +90,8 @@ async function initDatabase() {
         if (!fs.existsSync(DB_FILE)) await saveDatabase();
         console.log(`[DB] Local JSON mode. Loaded ${db.level30_archive.length} archive IDs.`);
     }
+    // Rebuild the in-memory lookup set after loading either storage backend.
+    normalizeDatabase();
     committedDatabase = JSON.stringify(db);
 }
 
