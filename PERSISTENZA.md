@@ -1,16 +1,14 @@
 # Persistenza archivio Level 30
 
-L'archivio è salvato in `database.json`. In locale si trova in `data/`; in produzione il percorso si configura con `DATA_DIR`.
+Il server usa PostgreSQL quando è impostata `DATABASE_URL`; se manca, usa il JSON locale solo per sviluppo. In produzione gratuito su Render, configurare un database PostgreSQL esterno come Supabase.
 
-## Render
+## Configurazione Supabase e Render
 
-Il disco del filesystem incluso in un servizio Render senza disco persistente è temporaneo: il file JSON non sopravvive a un riavvio o a un nuovo deploy. Per conservare gli ID:
+1. In Supabase apri **Connect** e copia la connessione PostgreSQL, preferibilmente **Session pooler**.
+2. Su Render apri il servizio web, vai in **Environment** e imposta `DATABASE_URL` con quella stringa. Non inserirla nel codice o in repository.
+3. Salva le variabili e ridistribuisci il servizio.
+4. Nei log di avvio verifica `PostgreSQL connected` e il numero di ID caricati. Se la connessione non funziona, il server non si avvia e mostra un errore nei log.
 
-1. Apri il servizio web su Render e aggiungi un Persistent Disk.
-2. Imposta il mount path del disco su `/var/data`.
-3. Nelle variabili d'ambiente del servizio imposta `DATA_DIR=/var/data`.
-4. Ridistribuisci il servizio.
+Alla prima connessione il server crea automaticamente la tabella `admin_ids_state`. Se trova un vecchio `data/database.json`, ne importa il contenuto una volta quando la tabella è vuota. Gli inserimenti vengono confermati all'utente solo dopo il completamento della scrittura PostgreSQL.
 
-Il servizio deve usare un piano Render che consenta i Persistent Disk. Dopo il primo avvio il server sposta automaticamente l'eventuale `data/database.json` esistente nel nuovo percorso. Verifica in log la riga `[DB] Migrated existing archive...` o `[DB] Loaded ... IDs ...`.
-
-Il server ora restituisce un errore se non riesce a scrivere il database, invece di confermare falsamente il salvataggio. Il volume deve restare montato allo stesso percorso nei successivi riavvii e deploy.
+Se l'archivio era già sparito dal filesystem temporaneo Render prima di questa modifica, recupera un backup dal sito e importalo da **Settings → Import Backup** dopo il deploy.

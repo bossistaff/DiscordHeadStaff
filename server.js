@@ -3,6 +3,7 @@ const cookieParser = require('cookie-parser');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { Pool } = require('pg');
 require('dotenv').config();
 
 const app = express();
@@ -29,18 +30,13 @@ const TASK_ASSIGNMENTS = {
 const TASK_VIEWER_IDS = new Set(Object.keys(TASK_ASSIGNMENTS));
 const ALL_AUTHORIZED_IDS = new Set([CREATOR_ID, ...ADMIN_IDS]);
 
-// Database persistence
-// Point DATA_DIR at a persistent volume in production (for example /var/data).
-const DATA_DIR = process.env.DATA_DIR
-    ? path.resolve(process.env.DATA_DIR)
-    : path.join(__dirname, 'data');
+// Persistent database: PostgreSQL when DATABASE_URL is set, local JSON otherwise.
+const DATA_DIR = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(__dirname, 'data');
 const DB_FILE = path.join(DATA_DIR, 'database.json');
+const pool = process.env.DATABASE_URL
+    ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false }, max: 5 })
+    : null;
 
-if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-}
-
-// Default initial state
 let db = {
     level30_archive: [], // array of { id, addedBy: { id, username, avatar }, addedAt }
     logs: [],            // array of { id, action, count, output, user, timestamp }
@@ -49,33 +45,10 @@ let db = {
     }
 };
 
-// Load database from file
-if (fs.existsSync(DB_FILE)) {
-    try {
-        const raw = fs.readFileSync(DB_FILE, 'utf-8');
-        const parsed = JSON.parse(raw);
-        if (parsed.level30_archive) db.level30_archive = parsed.level30_archive;
-        if (parsed.logs) db.logs = parsed.logs;
-        if (parsed.settings) db.settings = parsed.settings;
-        console.log(`[DB] Loaded ${db.level30_archive.length} IDs in archive and ${db.logs.length} logs.`);
-    } catch (e) {
-        console.error('[DB] Error reading database, initializing fresh:', e);
-    }
-} else {
-    const previousDb = path.join(__dirname, 'data', 'database.json');
-    if (path.resolve(previousDb) !== path.resolve(DB_FILE) && fs.existsSync(previousDb)) {
-        fs.copyFileSync(previousDb, DB_FILE);
-        console.log(`[DB] Migrated existing archive to ${DB_FILE}.`);
-    } else {
-        saveDatabase();
-    }
-}
+let archiveIdSet = new Set();
 
-// In-memory set of archive IDs for O(1) lookups
-let archiveIdSet = new Set(db.level30_archive.map(item => typeof item === 'string' ? item : item.id));
-
-// Normalize archive items to object format
-db.level30_archive = db.level30_archive.map(item => {
+function normalizeDatabase() {
+    db.level30_archive = db.level30_archive.map(item => {
     if (typeof item === 'string') {
         return {
             id: item,
@@ -84,16 +57,80 @@ db.level30_archive = db.level30_archive.map(item => {
         };
     }
     return item;
-});
+    });
+    archiveIdSet = new Set(db.level30_archive.map(item => item.id));
+}
+
+async function initDatabase() {
+    if (pool) {
+        await pool.query(`CREATE TABLE IF NOT EXISTS admin_ids_state (
+            id SMALLINT PRIMARY KEY CHECK (id = 1),
+            payload JSONB NOT NULL,
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )`);
+        const result = await pool.query('SELECT payload FROM admin_ids_state WHERE id = 1');
+        if (result.rows.length) {
+            db = result.rows[0].payload;
+        } else {
+            // Import the old local JSON database once when the PostgreSQL table is empty.
+            if (fs.existsSync(DB_FILE)) {
+                const previous = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+                db = { ...db, ...previous };
+            }
+            normalizeDatabase();
+            await saveDatabase();
+        }
+        console.log(`[DB] PostgreSQL connected. Loaded ${db.level30_archive.length} archive IDs.`);
+    } else {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+        if (fs.existsSync(DB_FILE)) {
+            db = { ...db, ...JSON.parse(fs.readFileSync(DB_FILE, 'utf8')) };
+        }
+        normalizeDatabase();
+        if (!fs.existsSync(DB_FILE)) await saveDatabase();
+        console.log(`[DB] Local JSON mode. Loaded ${db.level30_archive.length} archive IDs.`);
+    }
+    committedDatabase = JSON.stringify(db);
+}
+
+let saveQueue = Promise.resolve();
+let committedDatabase = null;
 
 function saveDatabase() {
+    const snapshot = JSON.stringify(db);
+    if (pool) {
+        saveQueue = saveQueue.catch(() => {}).then(() => pool.query(
+            `INSERT INTO admin_ids_state (id, payload, updated_at) VALUES (1, $1::jsonb, NOW())
+             ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = NOW()`,
+            [snapshot]
+        ));
+        return saveQueue;
+    }
     try {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
         const tempFile = DB_FILE + '.tmp';
-        fs.writeFileSync(tempFile, JSON.stringify(db, null, 2), 'utf-8');
+        fs.writeFileSync(tempFile, snapshot, 'utf-8');
         fs.renameSync(tempFile, DB_FILE);
+        return Promise.resolve();
     } catch (err) {
         console.error('[DB] Error saving database:', err);
-        throw new Error('Database persistence failed. Check DATA_DIR and the persistent disk configuration.');
+        return Promise.reject(new Error('Database persistence failed. Check DATA_DIR and the persistent disk configuration.'));
+    }
+}
+
+async function persistDatabaseOrRespond(res) {
+    try {
+        await saveDatabase();
+        committedDatabase = JSON.stringify(db);
+        return true;
+    } catch (err) {
+        console.error('[DB] Persistence error:', err.message);
+        if (committedDatabase) {
+            db = JSON.parse(committedDatabase);
+            normalizeDatabase();
+        }
+        res.status(500).json({ success: false, error: 'Unable to persist the database. Check the database connection.' });
+        return false;
     }
 }
 
@@ -421,7 +458,7 @@ app.get('/api/level30', requireAdmin, (req, res) => {
 });
 
 // POST /api/level30/add: Add new IDs to the shared archive (Restricted to Creator & Admins)
-app.post('/api/level30/add', requireAdmin, (req, res) => {
+app.post('/api/level30/add', requireAdmin, async (req, res) => {
     const { ids } = req.body;
     if (!ids || !Array.isArray(ids)) {
         return res.status(400).json({ success: false, error: "Invalid format: array of IDs expected." });
@@ -479,7 +516,7 @@ app.post('/api/level30/add', requireAdmin, (req, res) => {
     db.logs.unshift(logEntry);
     if (db.logs.length > 100) db.logs.length = 100;
 
-    saveDatabase();
+    if (!await persistDatabaseOrRespond(res)) return;
 
     // Broadcast SSE update to all connected clients
     broadcastSSE('archive_updated', {
@@ -502,7 +539,7 @@ app.post('/api/level30/add', requireAdmin, (req, res) => {
 });
 
 // DELETE /api/level30/id/:id: Remove single ID from shared archive
-app.delete('/api/level30/id/:id', requireAdmin, (req, res) => {
+app.delete('/api/level30/id/:id', requireAdmin, async (req, res) => {
     const targetId = req.params.id;
     if (!archiveIdSet.has(targetId)) {
         return res.status(404).json({ success: false, error: "ID not found in archive." });
@@ -511,7 +548,7 @@ app.delete('/api/level30/id/:id', requireAdmin, (req, res) => {
     archiveIdSet.delete(targetId);
     db.level30_archive = db.level30_archive.filter(item => item.id !== targetId);
     db.settings.lastUpdated = new Date().toISOString();
-    saveDatabase();
+    if (!await persistDatabaseOrRespond(res)) return;
 
     broadcastSSE('archive_updated', {
         action: 'delete',
@@ -523,7 +560,7 @@ app.delete('/api/level30/id/:id', requireAdmin, (req, res) => {
 });
 
 // POST /api/level30/clear: Empty entire shared archive
-app.post('/api/level30/clear', requireAdmin, (req, res) => {
+app.post('/api/level30/clear', requireAdmin, async (req, res) => {
     const previousCount = archiveIdSet.size;
     archiveIdSet.clear();
     db.level30_archive = [];
@@ -545,7 +582,7 @@ app.post('/api/level30/clear', requireAdmin, (req, res) => {
     };
     db.logs.unshift(logEntry);
 
-    saveDatabase();
+    if (!await persistDatabaseOrRespond(res)) return;
 
     broadcastSSE('archive_updated', {
         action: 'clear',
@@ -567,7 +604,7 @@ app.get('/api/logs', requireAdmin, (req, res) => {
 });
 
 // POST /api/logs/add: Add custom log (Admin only)
-app.post('/api/logs/add', requireAdmin, (req, res) => {
+app.post('/api/logs/add', requireAdmin, async (req, res) => {
     const { action, count, output } = req.body;
     const logEntry = {
         id: 'log_' + Date.now(),
@@ -584,7 +621,7 @@ app.post('/api/logs/add', requireAdmin, (req, res) => {
     };
     db.logs.unshift(logEntry);
     if (db.logs.length > 100) db.logs.length = 100;
-    saveDatabase();
+    if (!await persistDatabaseOrRespond(res)) return;
 
     res.json({ success: true, log: logEntry });
 });
@@ -607,7 +644,7 @@ app.get('/api/backup', requireAdmin, (req, res) => {
 });
 
 // POST /api/backup/import: Import backup into global archive (Admin only)
-app.post('/api/backup/import', requireAdmin, (req, res) => {
+app.post('/api/backup/import', requireAdmin, async (req, res) => {
     const { data } = req.body;
     if (!data) {
         return res.status(400).json({ success: false, error: "No backup data provided." });
@@ -647,7 +684,7 @@ app.post('/api/backup/import', requireAdmin, (req, res) => {
     });
 
     db.settings.lastUpdated = now;
-    saveDatabase();
+    if (!await persistDatabaseOrRespond(res)) return;
 
     broadcastSSE('archive_updated', {
         action: 'import',
@@ -697,12 +734,17 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`=======================================================`);
-    console.log(`🚀 Discord ID Pro Server running!`);
-    console.log(`🌐 Port: ${PORT}`);
-    console.log(`👑 Creator access configured`);
-    console.log(`🛡️ Authorized Admins: ${ADMIN_IDS.length} active`);
-    console.log(`📦 Global Archive Count: ${archiveIdSet.size}`);
-    console.log(`=======================================================`);
+initDatabase().then(() => {
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`=======================================================`);
+        console.log(`🚀 Discord ID Pro Server running!`);
+        console.log(`🌐 Port: ${PORT}`);
+        console.log(`👑 Creator access configured`);
+        console.log(`🛡️ Authorized Admins: ${ADMIN_IDS.length} active`);
+        console.log(`📦 Global Archive Count: ${archiveIdSet.size}`);
+        console.log(`=======================================================`);
+    });
+}).catch(err => {
+    console.error('[DB] Startup failed; server will not start without a working database:', err.message);
+    process.exit(1);
 });

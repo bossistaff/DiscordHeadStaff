@@ -8,9 +8,11 @@
     "dev": "node --watch server.js"
   },
   "dependencies": {
-    "express": "^4.21.2",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.119.0",
     "cookie-parser": "^1.4.7",
-    "dotenv": "^16.4.7"
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pg": "^8.23.1"
   }
 }
-
