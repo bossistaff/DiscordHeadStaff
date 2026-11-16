@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord ID Pro | Advanced Manager</title>
+    <title>Head of Staff Website</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -850,6 +850,21 @@
             color: var(--text-dim);
         }
 
+        .helpers-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; }
+        .helper-card { border:1px solid var(--card-border); background:rgba(255,255,255,.025); border-radius:14px; padding:16px; display:grid; grid-template-columns:54px 1fr auto; gap:12px; align-items:center; }
+        .helper-avatar { width:54px; height:54px; border-radius:50%; object-fit:cover; background:rgba(88,101,242,.18); }
+        .helper-id { font: .76rem var(--font-mono); color:var(--text-dim); overflow-wrap:anywhere; }
+        .helper-tenure { color:var(--text-dim); font-size:.82rem; margin-top:4px; }
+        .helper-progress { grid-column:1/-1; }
+        .helper-progress-label { display:flex; justify-content:space-between; gap:8px; font-size:.78rem; color:var(--text-dim); margin-bottom:5px; }
+        .helper-progress-track { height:7px; border-radius:99px; background:rgba(255,255,255,.1); overflow:hidden; }
+        .helper-progress-fill { height:100%; border-radius:99px; background:var(--primary); }
+        .helper-milestones { display:grid; gap:6px; padding:13px 15px; border:1px solid var(--card-border); border-radius:12px; margin:0 0 16px; color:var(--text-dim); font-size:.84rem; }
+        .helper-form { display:flex; align-items:end; flex-wrap:wrap; gap:10px; margin-bottom:14px; padding:14px; border:1px solid var(--card-border); border-radius:12px; }
+        .helper-form label { display:grid; gap:5px; color:var(--text-dim); font-size:.78rem; }
+        .helper-form input { padding:9px 10px; border:1px solid var(--card-border); border-radius:8px; background:var(--bg-main); color:var(--text-main); }
+        .helper-empty { grid-column:1/-1; text-align:center; padding:26px; color:var(--text-dim); }
+
         /* Color Splash */
         .color-splash-container {
             display: flex;
@@ -1364,7 +1379,7 @@
                 </svg>
             </div>
             <div>
-                <div class="brand-title">DISCORD ID PRO</div>
+                <div class="brand-title">Head of Staff</div>
                 <div class="brand-sub">
                     <span class="status-dot" id="serverStatusDot"></span>
                     <span id="serverStatusText">Checking connection...</span>
@@ -1414,6 +1429,7 @@
             </svg>
         </button>
         <button class="nav-item" id="nav-tasks" onclick="switchPage('tasks')" style="display: none;">Tasks</button>
+        <button class="nav-item" id="nav-helpers" onclick="switchPage('helpers')">Helpers</button>
         <button class="nav-item" id="themeToggle" onclick="toggleTheme()" title="Toggle Theme"
             style="margin-left: auto;">☀️</button>
     </nav>
@@ -1721,6 +1737,22 @@
             </div>
         </div>
 
+        <!-- PAGE: HELPERS -->
+        <div id="page-helpers" class="page">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px;">
+                <div><h1>Helpers</h1><p class="subtitle" style="margin-bottom:0;">Staff tenure and upcoming role milestones.</p></div>
+                <button id="addHelperButton" class="btn btn-primary" onclick="openHelperForm()" style="display:none; flex:none;">＋ Add Helper</button>
+            </div>
+            <div id="helperForm" class="helper-form" style="display:none;">
+                <label>Discord ID<input id="helperIdInput" inputmode="numeric" placeholder="16–21 digit Discord ID" maxlength="21"></label>
+                <label>Staff team start date<input id="helperDateInput" type="date"></label>
+                <button class="btn btn-primary" onclick="addHelper()">Save Helper</button>
+                <button class="btn btn-secondary" onclick="closeHelperForm()">Cancel</button>
+            </div>
+            <div class="helper-milestones"><span><b>@Practice • Legacy Helper</b> — Granted after 2 months on the Helper team.</span><span><b>@Practice • Senior Helper</b> — Granted after 5 months on the Helper team.</span></div>
+            <div id="helpersContainer" class="helpers-grid"><div class="helper-empty">Loading Helpers…</div></div>
+        </div>
+
         <!-- PAGE: LOGS -->
         <div id="page-logs" class="page">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
@@ -1871,7 +1903,9 @@
         let sharedArchiveSet = new Set();
         let sharedArchiveItems = [];
         let sharedLogs = [];
+        let sharedHelpers = [];
         let sseEventSource = null;
+        let helperEventSource = null;
 
         let state = {
             activePage: 'standard'
@@ -1903,7 +1937,10 @@
 
             renderAuthWidget();
             updateNavigationLocks();
+            updateHelperControls();
             await syncSharedArchive();
+            await loadHelpers();
+            setupLiveSyncSSE();
         }
 
         function updateServerStatus(online) {
@@ -2361,7 +2398,7 @@
                         <div class="log-info">
                             <img src="${user.avatarUrl || 'https://cdn.discordapp.com/embed/avatars/0.png'}" class="log-user-avatar" alt="Avatar">
                             <div class="log-texts">
-                                <span class="log-details">${log.action} (${log.count} IDs)</span>
+                                <span class="log-details">${log.action} (${log.count} ${String(log.action).startsWith('Helper ') ? 'Helpers' : 'IDs'})</span>
                                 <span class="log-time">${user.username} • ${timeStr}</span>
                             </div>
                         </div>
@@ -2495,6 +2532,19 @@
             if (!window.EventSource) return;
 
             try {
+                if (helperEventSource) helperEventSource.close();
+                helperEventSource = new EventSource('/api/helpers/events');
+                helperEventSource.addEventListener('helpers_updated', () => loadHelpers());
+                helperEventSource.onerror = () => {
+                    helperEventSource.close();
+                    setTimeout(setupLiveSyncSSE, 10000);
+                };
+
+                if (!currentUser || !currentUser.canAccessAdmin) {
+                    if (sseEventSource) sseEventSource.close();
+                    sseEventSource = null;
+                    return;
+                }
                 if (sseEventSource) sseEventSource.close();
                 sseEventSource = new EventSource('/api/events');
 
@@ -2532,6 +2582,107 @@
         }
 
         /* --- NAVIGATION --- */
+        function updateHelperControls() {
+            const button = document.getElementById('addHelperButton');
+            if (button) button.style.display = currentUser && currentUser.canAccessAdmin ? 'inline-flex' : 'none';
+        }
+
+        function openHelperForm() {
+            if (!currentUser || !currentUser.canAccessAdmin) return;
+            document.getElementById('helperForm').style.display = 'flex';
+            const dateInput = document.getElementById('helperDateInput');
+            dateInput.max = new Date().toISOString().slice(0, 10);
+            dateInput.value ||= dateInput.max;
+            document.getElementById('helperIdInput').focus();
+        }
+
+        function closeHelperForm() { document.getElementById('helperForm').style.display = 'none'; }
+
+        async function loadHelpers() {
+            const container = document.getElementById('helpersContainer');
+            if (!container) return;
+            try {
+                const res = await fetch('/api/helpers');
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Could not load Helpers.');
+                sharedHelpers = data.helpers || [];
+                renderHelpers();
+            } catch (err) {
+                container.innerHTML = '<div class="helper-empty">Helpers could not be loaded. Check the server connection.</div>';
+            }
+        }
+
+        function helperMilestoneDate(joinedAt, months) {
+            const date = new Date(`${joinedAt}T00:00:00`);
+            const day = date.getDate();
+            date.setDate(1);
+            date.setMonth(date.getMonth() + months);
+            const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+            date.setDate(Math.min(day, lastDay));
+            return date;
+        }
+
+        function helperAvatarUrl(id) {
+            try { return `https://cdn.discordapp.com/embed/avatars/${Number((BigInt(id) >> 22n) % 6n)}.png`; }
+            catch { return 'https://cdn.discordapp.com/embed/avatars/0.png'; }
+        }
+
+        function renderHelpers() {
+            const container = document.getElementById('helpersContainer');
+            const canManage = currentUser && currentUser.canAccessAdmin;
+            if (!sharedHelpers.length) {
+                container.innerHTML = '<div class="helper-empty">No Helpers have been added yet.</div>';
+                return;
+            }
+            const now = new Date();
+            container.innerHTML = sharedHelpers.slice().sort((a,b) => a.joinedAt.localeCompare(b.joinedAt)).map(helper => {
+                const joined = new Date(`${helper.joinedAt}T00:00:00`);
+                const legacy = helperMilestoneDate(helper.joinedAt, 2);
+                const senior = helperMilestoneDate(helper.joinedAt, 5);
+                const target = now >= senior ? null : (now >= legacy ? senior : legacy);
+                const stageStart = now >= legacy ? legacy : joined;
+                const stageEnd = now >= legacy ? senior : legacy;
+                const total = Math.max(1, stageEnd - stageStart);
+                const percent = target ? Math.min(100, Math.max(0, (now - stageStart) / total * 100)) : 100;
+                const days = target ? Math.max(0, Math.ceil((target - now) / 86400000)) : 0;
+                const milestone = now >= senior ? 'Senior Helper achieved' : now >= legacy ? 'Legacy Helper achieved' : 'Next: Legacy Helper';
+                const nextLabel = target ? `${days} day${days === 1 ? '' : 's'} remaining` : 'All milestones achieved';
+                const avatar = helper.avatarUrl || helperAvatarUrl(helper.id);
+                return `<article class="helper-card">
+                    <img class="helper-avatar" src="${avatar}" alt="Discord profile avatar for ${helper.id}" loading="lazy" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                    <div><div class="staff-name">${milestone}</div><div class="helper-id">${helper.id}</div><div class="helper-tenure">Staff since ${new Date(`${helper.joinedAt}T00:00:00`).toLocaleDateString()}</div></div>
+                    ${canManage ? `<button class="btn btn-danger" style="flex:none;padding:6px 9px" onclick="removeHelper('${helper.id}')" aria-label="Remove Helper ${helper.id}">Remove</button>` : ''}
+                    <div class="helper-progress"><div class="helper-progress-label"><span>${nextLabel}</span><span>${target ? target.toLocaleDateString() : ''}</span></div><div class="helper-progress-track"><div class="helper-progress-fill" style="width:${percent}%"></div></div></div>
+                </article>`;
+            }).join('');
+        }
+
+        async function addHelper() {
+            const id = document.getElementById('helperIdInput').value.trim();
+            const joinedAt = document.getElementById('helperDateInput').value;
+            if (!/^\d{16,21}$/.test(id) || !joinedAt) { showToast('Enter a valid Discord ID and staff start date.', 'error'); return; }
+            try {
+                const res = await fetch('/api/helpers', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id, joinedAt}) });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Could not add Helper.');
+                document.getElementById('helperIdInput').value = '';
+                closeHelperForm();
+                await loadHelpers();
+                showToast('Helper added and synced for everyone.', 'success');
+            } catch (err) { showToast(err.message, 'error'); }
+        }
+
+        async function removeHelper(id) {
+            if (!currentUser || !currentUser.canAccessAdmin) return;
+            try {
+                const res = await fetch(`/api/helpers/${encodeURIComponent(id)}`, {method:'DELETE'});
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Could not remove Helper.');
+                await loadHelpers();
+                showToast('Helper removed and synced for everyone.', 'success');
+            } catch (err) { showToast(err.message, 'error'); }
+        }
+
         function switchPage(pageId, save = true) {
             const protectedPages = ['level30', 'logs', 'settings'];
             if (protectedPages.includes(pageId)) {
@@ -2560,6 +2711,7 @@
             if (pageId === 'logs') items[4].classList.add('active');
             if (pageId === 'settings') items[5].classList.add('active');
             if (pageId === 'tasks') items[6].classList.add('active');
+            if (pageId === 'helpers') document.getElementById('nav-helpers').classList.add('active');
 
             state.activePage = pageId;
             if (save) saveState();
@@ -2567,7 +2719,10 @@
             if (pageId === 'level30') updateLevel30Stats();
             if (pageId === 'logs') loadSharedLogs();
             if (pageId === 'tasks') loadTasks();
+            if (pageId === 'helpers') loadHelpers();
         }
+
+        setInterval(() => { if (document.getElementById('page-helpers')?.classList.contains('active')) renderHelpers(); }, 60000);
 
         /* --- STANDARD LOGIC --- */
         function handleExclusiveCheckboxes(checkbox) {
@@ -3145,7 +3300,6 @@
 
         loadState();
         checkAuthStatus();
-        setupLiveSyncSSE();
     </script>
 </body>
 

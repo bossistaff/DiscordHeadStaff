@@ -39,6 +39,7 @@ const pool = process.env.DATABASE_URL
 
 let db = {
     level30_archive: [], // array of { id, addedBy: { id, username, avatar }, addedAt }
+    helpers: [],         // array of { id, joinedAt, addedBy, addedAt }
     logs: [],            // array of { id, action, count, output, user, timestamp }
     settings: {
         lastUpdated: new Date().toISOString()
@@ -48,6 +49,7 @@ let db = {
 let archiveIdSet = new Set();
 
 function normalizeDatabase() {
+    if (!Array.isArray(db.helpers)) db.helpers = [];
     db.level30_archive = db.level30_archive.map(item => {
     if (typeof item === 'string') {
         return {
@@ -141,6 +143,7 @@ const sessions = new Map();
 
 // SSE Clients for real-time synchronization
 let sseClients = [];
+let helperSseClients = [];
 
 function broadcastSSE(event, data) {
     const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
@@ -150,6 +153,13 @@ function broadcastSSE(event, data) {
         } catch (e) {
             // Client disconnected
         }
+    });
+}
+
+function broadcastHelperSSE(data) {
+    const payload = `event: helpers_updated\ndata: ${JSON.stringify(data)}\n\n`;
+    helperSseClients.forEach(client => {
+        try { client.res.write(payload); } catch (e) { /* Client disconnected */ }
     });
 }
 
@@ -447,6 +457,57 @@ app.post('/api/auth/logout', (req, res) => {
 
 // --- LEVEL 30 SHARED ARCHIVE ROUTES ---
 
+// Helpers directory is public so staff profiles and tenure are visible without login.
+app.get('/api/helpers', (req, res) => {
+    res.json({ success: true, helpers: db.helpers || [] });
+});
+
+app.post('/api/helpers', requireAdmin, async (req, res) => {
+    const id = String(req.body.id || '').trim();
+    const joinedAt = String(req.body.joinedAt || '').trim();
+    if (!/^\d{16,21}$/.test(id)) return res.status(400).json({ success: false, error: 'Enter a valid Discord ID.' });
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(joinedAt) || Number.isNaN(Date.parse(`${joinedAt}T00:00:00Z`)) || new Date(`${joinedAt}T00:00:00Z`).toISOString().slice(0, 10) !== joinedAt) {
+        return res.status(400).json({ success: false, error: 'Enter a valid staff start date.' });
+    }
+    if (joinedAt > new Date().toISOString().slice(0, 10)) return res.status(400).json({ success: false, error: 'Staff start date cannot be in the future.' });
+    if ((db.helpers || []).some(helper => helper.id === id)) return res.status(409).json({ success: false, error: 'This Helper is already listed.' });
+    const now = new Date().toISOString();
+    const user = { id: req.user.id, username: req.user.global_name || req.user.username, avatarUrl: req.user.avatarUrl, role: req.user.role };
+    let avatarUrl = null;
+    if (process.env.DISCORD_BOT_TOKEN) {
+        try {
+            const discordRes = await fetch(`https://discord.com/api/v10/users/${id}`, { headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` } });
+            if (discordRes.ok) {
+                const discordUser = await discordRes.json();
+                if (discordUser.avatar) avatarUrl = `https://cdn.discordapp.com/avatars/${id}/${discordUser.avatar}.png?size=128`;
+            }
+        } catch (err) { console.warn('[HELPERS] Discord avatar lookup unavailable.'); }
+    }
+    const helper = { id, joinedAt, addedAt: now, addedBy: user, avatarUrl };
+    db.helpers.push(helper);
+    db.settings.lastUpdated = now;
+    db.logs.unshift({ id: `log_${Date.now()}`, action: 'Helper Added', count: 1, output: `Helper ${id} joined staff on ${joinedAt}.`, user, timestamp: now });
+    if (db.logs.length > 100) db.logs.length = 100;
+    if (!await persistDatabaseOrRespond(res)) return;
+    broadcastHelperSSE({ action: 'add', helper });
+    res.json({ success: true, helper });
+});
+
+app.delete('/api/helpers/:id', requireAdmin, async (req, res) => {
+    const id = String(req.params.id);
+    const helper = (db.helpers || []).find(item => item.id === id);
+    if (!helper) return res.status(404).json({ success: false, error: 'Helper not found.' });
+    db.helpers = db.helpers.filter(item => item.id !== id);
+    const now = new Date().toISOString();
+    const user = { id: req.user.id, username: req.user.global_name || req.user.username, avatarUrl: req.user.avatarUrl, role: req.user.role };
+    db.settings.lastUpdated = now;
+    db.logs.unshift({ id: `log_${Date.now()}`, action: 'Helper Removed', count: 1, output: `Helper ${id} was removed from the staff team.`, user, timestamp: now });
+    if (db.logs.length > 100) db.logs.length = 100;
+    if (!await persistDatabaseOrRespond(res)) return;
+    broadcastHelperSSE({ action: 'remove', helperId: id });
+    res.json({ success: true });
+});
+
 // GET /api/level30: Get all archived IDs and details (Restricted to Creator & Admins)
 app.get('/api/level30', requireAdmin, (req, res) => {
     const idList = Array.from(archiveIdSet);
@@ -638,6 +699,7 @@ app.get('/api/backup', requireAdmin, (req, res) => {
         exportedBy: req.user.username,
         level30_history: Array.from(archiveIdSet),
         level30_archive: db.level30_archive,
+        helpers: db.helpers || [],
         logs: db.logs
     };
     res.setHeader('Content-Disposition', `attachment; filename=backup_discord_ids_global_${Date.now()}.json`);
@@ -700,6 +762,19 @@ app.post('/api/backup/import', requireAdmin, async (req, res) => {
         importedCount: newlyAdded.length,
         totalCount: archiveIdSet.size
     });
+});
+
+// Public event stream contains only Helper directory updates.
+app.get('/api/helpers/events', (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+    const clientId = Date.now() + Math.random().toString(36).substring(2, 7);
+    const client = { id: clientId, res };
+    helperSseClients.push(client);
+    res.write(`event: connected\ndata: ${JSON.stringify({ clientId })}\n\n`);
+    req.on('close', () => { helperSseClients = helperSseClients.filter(c => c.id !== clientId); });
 });
 
 // --- REAL-TIME SSE ENDPOINT (Restricted to Admins) ---
