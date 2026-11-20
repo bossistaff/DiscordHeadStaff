@@ -853,6 +853,7 @@
         .helpers-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; }
         .helper-card { border:1px solid var(--card-border); background:rgba(255,255,255,.025); border-radius:14px; padding:16px; display:grid; grid-template-columns:54px 1fr auto; gap:12px; align-items:center; }
         .helper-avatar { width:54px; height:54px; border-radius:50%; object-fit:cover; background:rgba(88,101,242,.18); }
+        .helper-actions { display:flex; flex-direction:column; gap:6px; }
         .helper-id { font: .76rem var(--font-mono); color:var(--text-dim); overflow-wrap:anywhere; }
         .helper-tenure { color:var(--text-dim); font-size:.82rem; margin-top:4px; }
         .helper-progress { grid-column:1/-1; }
@@ -2584,11 +2585,11 @@
         /* --- NAVIGATION --- */
         function updateHelperControls() {
             const button = document.getElementById('addHelperButton');
-            if (button) button.style.display = currentUser && currentUser.canAccessAdmin ? 'inline-flex' : 'none';
+            if (button) button.style.display = currentUser && currentUser.canManageHelpers ? 'inline-flex' : 'none';
         }
 
         function openHelperForm() {
-            if (!currentUser || !currentUser.canAccessAdmin) return;
+            if (!currentUser || !currentUser.canManageHelpers) return;
             document.getElementById('helperForm').style.display = 'flex';
             const dateInput = document.getElementById('helperDateInput');
             dateInput.max = new Date().toISOString().slice(0, 10);
@@ -2627,9 +2628,13 @@
             catch { return 'https://cdn.discordapp.com/embed/avatars/0.png'; }
         }
 
+        function escapeHelperText(value) {
+            return String(value || '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+        }
+
         function renderHelpers() {
             const container = document.getElementById('helpersContainer');
-            const canManage = currentUser && currentUser.canAccessAdmin;
+            const canManage = currentUser && currentUser.canManageHelpers;
             if (!sharedHelpers.length) {
                 container.innerHTML = '<div class="helper-empty">No Helpers have been added yet.</div>';
                 return;
@@ -2648,16 +2653,19 @@
                 const milestone = now >= senior ? 'Senior Helper achieved' : now >= legacy ? 'Legacy Helper achieved' : 'Next: Legacy Helper';
                 const nextLabel = target ? `${days} day${days === 1 ? '' : 's'} remaining` : 'All milestones achieved';
                 const avatar = helper.avatarUrl || helperAvatarUrl(helper.id);
+                const displayName = escapeHelperText(helper.displayName || helper.username || 'Discord user');
+                const username = helper.username ? `@${escapeHelperText(helper.username)}` : 'Username unavailable';
                 return `<article class="helper-card">
-                    <img class="helper-avatar" src="${avatar}" alt="Discord profile avatar for ${helper.id}" loading="lazy" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
-                    <div><div class="staff-name">${milestone}</div><div class="helper-id">${helper.id}</div><div class="helper-tenure">Staff since ${new Date(`${helper.joinedAt}T00:00:00`).toLocaleDateString()}</div></div>
-                    ${canManage ? `<button class="btn btn-danger" style="flex:none;padding:6px 9px" onclick="removeHelper('${helper.id}')" aria-label="Remove Helper ${helper.id}">Remove</button>` : ''}
+                    <img class="helper-avatar" src="${avatar}" alt="Discord profile avatar for ${displayName}" loading="lazy" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                    <div><div class="staff-name">${displayName}</div><div class="helper-id">${username} · ${helper.id}</div><div class="helper-tenure">${milestone} · Staff since ${new Date(`${helper.joinedAt}T00:00:00`).toLocaleDateString()}</div></div>
+                    ${canManage ? `<div class="helper-actions">${!helper.username ? `<button class="btn btn-secondary" style="flex:none;padding:6px 9px" onclick="refreshHelperProfile('${helper.id}')" aria-label="Load Discord profile for ${helper.id}">Load profile</button>` : ''}<button class="btn btn-danger" style="flex:none;padding:6px 9px" onclick="removeHelper('${helper.id}')" aria-label="Remove Helper ${helper.id}">Remove</button></div>` : ''}
                     <div class="helper-progress"><div class="helper-progress-label"><span>${nextLabel}</span><span>${target ? target.toLocaleDateString() : ''}</span></div><div class="helper-progress-track"><div class="helper-progress-fill" style="width:${percent}%"></div></div></div>
                 </article>`;
             }).join('');
         }
 
         async function addHelper() {
+            if (!currentUser || !currentUser.canManageHelpers) return;
             const id = document.getElementById('helperIdInput').value.trim();
             const joinedAt = document.getElementById('helperDateInput').value;
             if (!/^\d{16,21}$/.test(id) || !joinedAt) { showToast('Enter a valid Discord ID and staff start date.', 'error'); return; }
@@ -2673,13 +2681,24 @@
         }
 
         async function removeHelper(id) {
-            if (!currentUser || !currentUser.canAccessAdmin) return;
+            if (!currentUser || !currentUser.canManageHelpers) return;
             try {
                 const res = await fetch(`/api/helpers/${encodeURIComponent(id)}`, {method:'DELETE'});
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Could not remove Helper.');
                 await loadHelpers();
                 showToast('Helper removed and synced for everyone.', 'success');
+            } catch (err) { showToast(err.message, 'error'); }
+        }
+
+        async function refreshHelperProfile(id) {
+            if (!currentUser || !currentUser.canManageHelpers) return;
+            try {
+                const res = await fetch(`/api/helpers/${encodeURIComponent(id)}/refresh-profile`, {method:'POST'});
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Could not load Discord profile.');
+                await loadHelpers();
+                showToast('Discord profile loaded.', 'success');
             } catch (err) { showToast(err.message, 'error'); }
         }
 

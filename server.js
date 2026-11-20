@@ -174,6 +174,10 @@ function isAuthorized(id) {
     return ALL_AUTHORIZED_IDS.has(String(id));
 }
 
+function canManageHelpers(user) {
+    return Boolean(user && (isAuthorized(user.id) || String(user.id) === '575312474023133184'));
+}
+
 function canViewTasks(user) {
     return Boolean(user && (user.role === 'creator' || TASK_VIEWER_IDS.has(String(user.id))));
 }
@@ -243,6 +247,13 @@ function requireAdmin(req, res, next) {
     next();
 }
 
+function requireHelperManager(req, res, next) {
+    if (!canManageHelpers(req.user)) {
+        return res.status(403).json({ success: false, error: 'Access denied.' });
+    }
+    next();
+}
+
 app.use(authMiddleware);
 
 // --- AUTH ROUTES ---
@@ -274,6 +285,7 @@ app.get('/api/auth/status', (req, res) => {
             avatarUrl: req.user.avatarUrl,
             role: req.user.role,
             canAccessAdmin: req.user.canAccessAdmin,
+            canManageHelpers: canManageHelpers(req.user),
             canViewTasks: canViewTasks(req.user)
         } : null
     });
@@ -294,6 +306,7 @@ app.get('/api/auth/me', (req, res) => {
             avatarUrl: req.user.avatarUrl,
             role: req.user.role,
             canAccessAdmin: req.user.canAccessAdmin,
+            canManageHelpers: canManageHelpers(req.user),
             canViewTasks: canViewTasks(req.user)
         }
     });
@@ -462,7 +475,22 @@ app.get('/api/helpers', (req, res) => {
     res.json({ success: true, helpers: db.helpers || [] });
 });
 
-app.post('/api/helpers', requireAdmin, async (req, res) => {
+async function getDiscordHelperProfile(id) {
+    if (!process.env.DISCORD_BOT_TOKEN) return null;
+    const discordRes = await fetch(`https://discord.com/api/v10/users/${id}`, {
+        headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` },
+        signal: AbortSignal.timeout(5000)
+    });
+    if (!discordRes.ok) return null;
+    const profile = await discordRes.json();
+    return {
+        username: profile.username || null,
+        displayName: profile.global_name || profile.username || null,
+        avatarUrl: profile.avatar ? `https://cdn.discordapp.com/avatars/${id}/${profile.avatar}.png?size=128` : null
+    };
+}
+
+app.post('/api/helpers', requireHelperManager, async (req, res) => {
     const id = String(req.body.id || '').trim();
     const joinedAt = String(req.body.joinedAt || '').trim();
     if (!/^\d{16,21}$/.test(id)) return res.status(400).json({ success: false, error: 'Enter a valid Discord ID.' });
@@ -473,17 +501,10 @@ app.post('/api/helpers', requireAdmin, async (req, res) => {
     if ((db.helpers || []).some(helper => helper.id === id)) return res.status(409).json({ success: false, error: 'This Helper is already listed.' });
     const now = new Date().toISOString();
     const user = { id: req.user.id, username: req.user.global_name || req.user.username, avatarUrl: req.user.avatarUrl, role: req.user.role };
-    let avatarUrl = null;
-    if (process.env.DISCORD_BOT_TOKEN) {
-        try {
-            const discordRes = await fetch(`https://discord.com/api/v10/users/${id}`, { headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` } });
-            if (discordRes.ok) {
-                const discordUser = await discordRes.json();
-                if (discordUser.avatar) avatarUrl = `https://cdn.discordapp.com/avatars/${id}/${discordUser.avatar}.png?size=128`;
-            }
-        } catch (err) { console.warn('[HELPERS] Discord avatar lookup unavailable.'); }
-    }
-    const helper = { id, joinedAt, addedAt: now, addedBy: user, avatarUrl };
+    let profile = null;
+    try { profile = await getDiscordHelperProfile(id); }
+    catch (err) { console.warn('[HELPERS] Discord profile lookup unavailable.'); }
+    const helper = { id, joinedAt, addedAt: now, addedBy: user, ...(profile || {}) };
     db.helpers.push(helper);
     db.settings.lastUpdated = now;
     db.logs.unshift({ id: `log_${Date.now()}`, action: 'Helper Added', count: 1, output: `Helper ${id} joined staff on ${joinedAt}.`, user, timestamp: now });
@@ -493,7 +514,25 @@ app.post('/api/helpers', requireAdmin, async (req, res) => {
     res.json({ success: true, helper });
 });
 
-app.delete('/api/helpers/:id', requireAdmin, async (req, res) => {
+app.post('/api/helpers/:id/refresh-profile', requireHelperManager, async (req, res) => {
+    const id = String(req.params.id);
+    const helper = (db.helpers || []).find(item => item.id === id);
+    if (!helper) return res.status(404).json({ success: false, error: 'Helper not found.' });
+    if (!process.env.DISCORD_BOT_TOKEN) return res.status(503).json({ success: false, error: 'Set DISCORD_BOT_TOKEN on the server to load Discord profiles.' });
+    try {
+        const profile = await getDiscordHelperProfile(id);
+        if (!profile) return res.status(404).json({ success: false, error: 'Discord could not return this profile. Check that the bot can access this user.' });
+        Object.assign(helper, profile);
+        db.settings.lastUpdated = new Date().toISOString();
+        if (!await persistDatabaseOrRespond(res)) return;
+        broadcastHelperSSE({ action: 'profile_updated', helper });
+        res.json({ success: true, helper });
+    } catch (err) {
+        res.status(502).json({ success: false, error: 'Discord profile lookup failed.' });
+    }
+});
+
+app.delete('/api/helpers/:id', requireHelperManager, async (req, res) => {
     const id = String(req.params.id);
     const helper = (db.helpers || []).find(item => item.id === id);
     if (!helper) return res.status(404).json({ success: false, error: 'Helper not found.' });
